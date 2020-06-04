@@ -1,1 +1,162 @@
+.unvisible
+{
+	opacity: 0;
+	font-size: 60px;
+}
 
+.files
+{
+	position: absolute;
+	bottom: 100px;
+	top: 100px;
+	left: 200px;
+	right: 200px;
+	background: #ffffff;
+	overflow: auto;
+	border: 2px solid #2C2C2C
+}
+
+.table-header-1
+{
+	font-family: Times New Roman;
+	font-size: 40pt;
+	font-weight: bold;
+}
+
+.page-header
+{
+	border: 2px solid #2C2C2C;
+	position: absolute;
+	font-family: Arial;
+	font-size: 40pt;
+	top: 37px;
+	left: 726px;
+	background: #ffffff;
+}
+
+.exit
+{
+	position: absolute;
+	font-family: Arial;
+	font-size: 14pt;
+	right: 0px;
+	top: 0px;
+	background: #ffffff;
+}
+
+.logo-error
+{
+	position: absolute;
+	top: 400px;
+	left: 775px;
+	width: 400px;
+}
+
+.left-if
+{
+	position: absolute;
+	top: 600px;
+	left: 300px;
+	font-family: Arial;
+	font-size: 20pt;
+}
+
+.right-if
+{
+	position: absolute;
+	top: 600px;
+	right: 300px;
+	font-family: Arial;
+	font-size: 20pt;
+}
+
+.center-if
+{
+	font-family: Arial;
+	font-size: 20pt;
+	position: absolute;
+	top: 775px;
+	left: 685px;
+}
+
+.log-in-error
+{
+	position: absolute;
+	top: 950px;
+	left: 775px;
+	width: 400px;
+}
+
+.form-file-sender
+{
+	position: absolute;
+	top: 8px;
+	left: 80px;
+}
+
+.send-file
+{
+	border: 3px solid #2C2C2C;
+	position: absolute;
+	background: #ffffff;
+	top: 834px;
+	right: 760px;
+	left: 760px;
+	bottom: 20px;
+}
+
+.file-struct
+{
+	font-family: Arial;
+	font-size: 25pt;
+}
+
+.no-content
+{
+	font-family: High Tower Text;
+	font-size: 50pt;
+}
+
+.size-error
+{
+	font-family: High Tower Text;
+	font-size: 50pt;
+	position: absolute;
+	bottom: 100px;
+	top: 100px;
+	left: 200px;
+	right: 200px;
+	background: #ffffff;
+}
+
+.free-size
+{
+	border: 3px solid #2C2C2C;
+	font-family: Times New Roman;
+	font-size: 20pt;
+	position: absolute;
+	bottom: 20px;
+	top: 834px;
+	left: 1320px;
+	right: 200px;
+	background: #ffffff;
+}
+
+.used-size
+{
+	border: 3px solid #2C2C2C;
+	font-family: Times New Roman;
+	font-size: 20pt;
+	position: absolute;
+	bottom: 20px;
+	top: 834px;
+	left: 1320px;
+	right: 200px;
+}
+
+.size-size
+{
+	position: absolute;
+	left: 10px;
+	right: 10px;
+}
