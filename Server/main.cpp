@@ -15,7 +15,7 @@ using namespace std;
 
 int main()
 {
-  char const SrvAddress[] = "192.168.8.105";
+  char const SrvAddress[] = "127.0.0.1";
   std::uint16_t SrvPort = 5555;
   std::uint16_t SrvThreadCount = 4;
   std::string const RootDir = "../Interface";
