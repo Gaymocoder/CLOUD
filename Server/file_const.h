@@ -118,7 +118,10 @@ vector<file_struct> sort(string sn, string pn, string sort, string size, string 
 							file_list[i-1].size = round_d(to_string(size_double)) + " MB";
 						}
 						else
+						{
+							size_double = round(size_double/1024*10)/10;
 							file_list[i-1].size = round_d(to_string(size_double)) + " GB";
+						}
 					}
 				}
 			}
@@ -153,7 +156,10 @@ vector<file_struct> sort(string sn, string pn, string sort, string size, string 
 						file_list[0].used_size = round_d(to_string(used_size_d)) + " MB";
 					}
 					else
+					{
+						used_size_d = round(used_size_d/1024*10)/10;
 						file_list[0].used_size = round_d(to_string(used_size_d)) + " GB";
+					}						
 				}
 			}
 		}
