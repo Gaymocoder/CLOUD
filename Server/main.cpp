@@ -15,7 +15,7 @@ using namespace std;
 
 int main()
 {
-  char const SrvAddress[] = "127.0.0.1";
+  char const SrvAddress[] = "192.168.1.2";
   std::uint16_t SrvPort = 5555;
   std::uint16_t SrvThreadCount = 4;
   std::string const RootDir = "../Interface";
@@ -23,8 +23,8 @@ int main()
   std::mutex Mtx;
   const string login = "admin";
   const string password = "admin";
-  string login_input = "sss";
-  string password_input = "fff";
+  string login_input = "";
+  string password_input = "";
   file_struct file;
   try
   {
@@ -431,96 +431,100 @@ int main()
 						<link rel=\"stylesheet\" type=\"text/css\" href=\"/sources/css/style.css\">"<<endl<<"\
 					</head>"<<endl<<"\
 					<body background = \"/sources/images/Cubes_Back.jpg\">"<<endl<<"\
-						<div class=\"free-size\" align=\"right\">"<<endl<<"\
-							<div class=\"size-size\">"<<endl<<\
-								fs_size<<" left"<<endl<<"\
-							</div>"<<endl<<"\
-						</div>"<<endl<<"\
-						<div class=\"used-size\" align=\"left\">"<<endl<<"\
-							<div class=\"size-size\">"<<endl<<\
-								used_size<<" used"<<endl<<"\
-							</div>"<<endl<<"\
-						</div>"<<endl<<"\
 						<div class=\"exit\">"<<endl<<"\
 							<a href=\"exit.html?Login=sss&Password=fff\">Exit</a>"<<endl<<"\
 						</div>"<<endl<<"\
-						<div class=\"files\">"<<endl<<"\
-							<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" height=\"100%\" border=\"3\" bgcolor=\"white\">"<<endl<<"\
-								<tr>"<<endl<<"\
-									<td width=\"10%\" height=\"15%\" align=\"center\">"<<endl<<"\
-										<div class=\"table-header-1\">"<<endl<<"\
-											<a href=\"delay.html?delete=all\">Delete all</a>"<<endl<<"\
-										</div>"<<endl<<"\
-									</td>"<<endl<<"\
-									<td width=\"50%\" height=\"15%\" align=\"center\">"<<endl<<"\
-										<div class=\"table-header-1\">"<<endl<<"\
-											Name"<<endl<<"\
-										</div>"<<endl<<"\
-									</td>"<<endl<<"\
-									<td width=\"20%\" height=\"15%\" align=\"center\">"<<endl<<"\
-										<div class=\"table-header-1\">"<<endl<<"\
-											Date"<<endl<<"\
-										</div>"<<endl<<"\
-									</td>"<<endl<<"\
-									<td width=\"20%\" height=\"15%\" align=\"center\">"<<endl<<"\
-										<div class=\"table-header-1\">"<<endl<<"\
-											Size"<<endl<<"\
-										</div>"<<endl<<"\
-									</td>"<<endl<<"\
-								</tr>"<<endl;
+                        <div class=\"files\" style=\"height: 90%; border: 0; background: 0\">"<<endl<<"\
+                            <div class=\"files\" style=\"width: 99%; top: 0; left: 0\">"<<endl<<"\
+                                <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" height=\"100%\" border=\"3\" bgcolor=\"white\">"<<endl<<"\
+                                    <tr>"<<endl<<"\
+                                        <td width=\"7.7%\" height=\"15%\" align=\"center\">"<<endl<<"\
+                                            <div class=\"table-header-1\">"<<endl<<"\
+                                                <a href=\"delay.html?delete=all\">Delete all</a>"<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        </td>"<<endl<<"\
+                                        <td width=\"38.5%\" height=\"15%\" align=\"center\">"<<endl<<"\
+                                            <div class=\"table-header-1\">"<<endl<<"\
+                                                Name"<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        </td>"<<endl<<"\
+                                        <td width=\"15.4%\" height=\"15%\" align=\"center\">"<<endl<<"\
+                                            <div class=\"table-header-1\">"<<endl<<"\
+                                                Date"<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        </td>"<<endl<<"\
+                                        <td width=\"15.4%\" height=\"15%\" align=\"center\">"<<endl<<"\
+                                            <div class=\"table-header-1\">"<<endl<<"\
+                                                Size"<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        </td>"<<endl<<"\
+                                    </tr>"<<endl;
 			if(file_list.size()>0)
 			{
 				for(size_t i = 0; i<file_list.size(); i++)
 				{	
 					index<<"\
-								<tr>"<<endl<<"\
-									<td width=\"10%\" height=\"10%\" align=\"center\">"<<endl<<"\
-										<div class=\"file-struct\">"<<endl<<"\
-											<a href=\"delay.html?delete="<<i<<"\">Delete file</a>"<<endl<<"\
-										</div>"<<endl<<"\
-									<td width=\"50%\" height=\"10%\" align=\"center\">"<<endl<<"\
-										<div class=\"file-struct\">"<<endl<<"\
-											<a href=\"yourcloud/"<<file_list[i].server_name<<"\" download>"<<file_list[i].public_name<<"<a/>"<<endl<<"\
-										</div>"<<endl<<"\
-									</td>"<<endl<<"\
-									<td width=\"20%\" height=\"10%\" align=\"center\">"<<endl<<"\
-										<div class=\"file-struct\">"<<endl<<\
-											file_list[i].date<<endl<<"\
-										</div>"<<endl<<"\
-									</td>"<<endl<<"\
-									<td width=\"20%\" height=\"10%\" align=\"center\">"<<endl<<"\
-										<div class=\"file-struct\">"<<endl<<\
-											file_list[i].size<<endl<<"\
-										</div>"<<endl<<"\
-									</td>"<<endl<<"\
-								</tr>"<<endl;
+                                    <tr>"<<endl<<"\
+                                        <td width=\"7.7%\" height=\"10%\" align=\"center\">"<<endl<<"\
+                                            <div class=\"file-struct\">"<<endl<<"\
+                                                <a href=\"delay.html?delete="<<i<<"\">Delete file</a>"<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        <td width=\"38.5%\" height=\"10%\" align=\"center\">"<<endl<<"\
+                                            <div class=\"file-struct\">"<<endl<<"\
+                                                <a href=\"yourcloud/"<<file_list[i].server_name<<"\" download>"<<file_list[i].public_name<<"<a/>"<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        </td>"<<endl<<"\
+                                        <td width=\"15.4%\" height=\"10%\" align=\"center\">"<<endl<<"\
+                                            <div class=\"file-struct\">"<<endl<<\
+                                                file_list[i].date<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        </td>"<<endl<<"\
+                                        <td width=\"15.4%\" height=\"10%\" align=\"center\">"<<endl<<"\
+                                            <div class=\"file-struct\">"<<endl<<\
+                                                file_list[i].size<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        </td>"<<endl<<"\
+                                    </tr>"<<endl;
 				}
 				index<<"\
-								<tr>"<<endl<<"\
-								</tr>"<<endl;
+                                    <tr>"<<endl<<"\
+                                    </tr>"<<endl;
 			}
 			else
 			{
 				index<<"\
-								<tr>"<<endl<<"\
-									<td width=\"100%\" align=\"center\" valign=\"center\" colspan=\"4\">"<<endl<<"\
-										<div class=\"no-content\">"<<endl<<"\
-											No uploaded files found"<<endl<<"\
-										</div>"<<endl<<"\
-									</td>"<<endl<<"\
-								</tr>"<<endl;
+                                    <tr>"<<endl<<"\
+                                        <td width=\"100%\" align=\"center\" valign=\"center\" colspan=\"4\">"<<endl<<"\
+                                            <div class=\"no-content\">"<<endl<<"\
+                                                No uploaded files found"<<endl<<"\
+                                            </div>"<<endl<<"\
+                                        </td>"<<endl<<"\
+                                    </tr>"<<endl;
 			}
 			index<<"\
-							</table>"<<endl<<"\
-						</div>"<<endl<<"\
-						<div class=\"send-file\" align=\"center\">"<<endl<<"\
-							<div class=\"form-file-sender\" align=\"center\">"<<endl<<"\
-								<form enctype=\"multipart/form-data\" method=\"POST\" action=\"send-file.html\">"<<endl<<"\
-									<input type=\"file\" name=\"ffff\"><br><br>"<<endl<<"\
-									<input type=\"submit\" value=\"Send file\"><br>"<<endl<<"\
-								</form>"<<endl<<"\
-							</div>"<<endl<<"\
-						</div>"<<endl<<"\
+                                </table>"<<endl<<"\
+                            </div>"<<endl<<"\
+                            <div class=\"size-size\">"<<endl<<"\
+                                <div align=\"left\">"<<endl<<"\
+                                    <div class=\"free-size\" align=\"center\">"<<endl<<\
+                                        fs_size<<" left"<<endl<<"\
+                                    </div>"<<endl<<"\
+                                </div>"<<endl<<"\
+                                <div align=\"right\">"<<endl<<"\
+                                    <div class=\"used-size\" align=\"center\">"<<endl<<\
+                                        used_size<<" used"<<endl<<"\
+                                    </div>"<<endl<<"\
+                                </div>"<<endl<<"\
+                                <div class=\"send-file\" align=\"center\">"<<endl<<"\
+                                    <div class=\"form-file-sender\" align=\"center\">"<<endl<<"\
+                                        <form enctype=\"multipart/form-data\" method=\"POST\" action=\"send-file.html\">"<<endl<<"\
+                                            <input type=\"file\" name=\"ffff\"><br><br>"<<endl<<"\
+                                            <input type=\"submit\" value=\"Send file\"><br>"<<endl<<"\
+                                        </form>"<<endl<<"\
+                                    </div>"<<endl<<"\
+                                </div>"<<endl<<"\
+                            </div>"<<endl<<"\
+                        </div>"<<endl<<"\
 					</body>"<<endl<<"\
 				</html>"<<endl;
 			delay_web<<"\
@@ -576,48 +580,50 @@ int main()
 					<body background=\"/sources/images/Cubes_Back.jpg\">"<<endl<<"\
 						<div align=\"center\">"<<endl<<"\
 							<div class=\"page-header\" align=\"center\">"<<endl<<"\
-								Authorization failed."<<endl<<"\
+								Authorization failed"<<endl<<"\
 							</div>"<<endl<<"\
 						</div>"<<endl<<"\
-						<div class=\"files\" align=\"center\">"<<endl<<"\
-							<img src=\"/sources/images/Access_Error.jpg\" align=\"center\">"<<endl<<"\
-						</div>"<<endl<<"\
-						<div class=\"logo-error\">"<<endl<<"\
-							<img src=\"/sources/images/Logo.jpg\" width=\"350px\">"<<endl<<"\
-						</div>"<<endl<<"\
-						<div class=\"left-if\">"<<endl<<"\
-							But if you're truly the owner..."<<endl<<"\
-						</div>"<<endl<<"\
-						<div class=\"right-if\">"<<endl<<"\
-							...or the confident of the owner..."<<endl<<"\
-						</div>"<<endl<<"\
-						<div class=\"center-if\">"<<endl<<"\
-							<a href=\"#Try-Again\">"<<endl<<"\
-								...try again. With correct login and password."<<endl<<"\
-							</a>"<<endl<<"\
-						</div>"<<endl<<"\
-						<div class=\"log-in-error\">"<<endl<<"\
-							<form action=\"delay.html\">"<<endl<<"\
-								<table cellspacing=\"0\" align=\"center\" border=\"3\" width=\"300\" height=\"300\" bgcolor=\"white\">"<<endl<<"\
-									<tr height=\"50\">"<<endl<<"\
-										<td valing=\"middle\">"<<endl<<"\
-											<h1 align=\"center\"><a name=\"Try-Again\">LOG IN</a></h1>"<<endl<<"\
-										</td>"<<endl<<"\
-									</tr>"<<endl<<"\
-									<tr border=\"0\">"<<endl<<"\
-										<td valign=\"top\" align=\"center\">"<<endl<<"\
-											<br>"<<endl<<"\
-											Login<br>"<<endl<<"\
-											<input name=\"Login\" type=\"text\" align=\"center\"><br>"<<endl<<"\
-											<br>"<<endl<<"\
-											Password<br>"<<endl<<"\
-											<input name=\"Password\" type=\"password\" align=\"center\"><br>"<<endl<<"\
-											<br><br>"<<endl<<"\
-											<input value=\"Log in\" type=\"submit\">"<<endl<<"\
-										</td>"<<endl<<"\
-									</tr>"<<endl<<"\
-								</table>"<<endl<<"\
-							</form>"<<endl<<"\
+						<div class=\"files\">"<<endl<<"\
+							<img src=\"/sources/images/Access_Error.jpg\" width=\"100%\">"<<endl<<"\
+                            <div class=\"autherror\">"<<endl<<"\
+                                <div class=\"left-if\" align=\"center\" style=\"position: absolute\">"<<endl<<"\
+                                    <div class=\"if\" align=\"center\">"<<endl<<"\
+                                        But if you're truly the owner..."<<endl<<"\
+                                    </div>"<<endl<<"\
+                                </div>"<<endl<<"\
+                                <div class=\"right-if\" align=\"center\" style=\"position: absolute\">"<<endl<<"\
+                                    <div class=\"if\" align=\"center\">"<<endl<<"\
+                                        ...or the confident of the owner..."<<endl<<"\
+                                    </div>"<<endl<<"\
+                                </div>"<<endl<<"\
+                                <img src=\"/sources/images/Logo.jpg\" style=\"position: relative; left: 35%\" width=\"30%\">"<<endl<<"\
+                            </div>"<<endl<<"\
+                            <div class=\"center-if\" align=\"center\">"<<endl<<"\
+                                ...try again. With correct login and password."<<endl<<"\
+                            </div>"<<endl<<"\
+                            <div class=\"log-in-error\" align=\"center\">"<<endl<<"\
+                                <form action=\"delay.html\">"<<endl<<"\
+                                    <table cellspacing=\"0\" align=\"center\" border=\"3\" width=\"300\" height=\"300\" bgcolor=\"white\">"<<endl<<"\
+                                        <tr height=\"50\">"<<endl<<"\
+                                            <td valing=\"middle\">"<<endl<<"\
+                                                <h1 align=\"center\"><a name=\"Try-Again\">LOG IN</a></h1>"<<endl<<"\
+                                            </td>"<<endl<<"\
+                                        </tr>"<<endl<<"\
+                                        <tr border=\"0\">"<<endl<<"\
+                                            <td valign=\"top\" align=\"center\">"<<endl<<"\
+                                                <br>"<<endl<<"\
+                                                Login<br>"<<endl<<"\
+                                                <input name=\"Login\" type=\"text\" align=\"center\"><br>"<<endl<<"\
+                                                <br>"<<endl<<"\
+                                                Password<br>"<<endl<<"\
+                                                <input name=\"Password\" type=\"password\" align=\"center\"><br>"<<endl<<"\
+                                                <br><br>"<<endl<<"\
+                                                <input value=\"Log in\" type=\"submit\">"<<endl<<"\
+                                            </td>"<<endl<<"\
+                                        </tr>"<<endl<<"\
+                                    </table>"<<endl<<"\
+                                </form>"<<endl<<"\
+                            </div>"<<endl<<"\
 						</div>"<<endl<<"\
 					</body>"<<endl<<"\
 				</html>"<<endl<<"\
@@ -632,11 +638,12 @@ int main()
 						<link rel=\"stylesheet\" type=\"text/css\" href=\"/sources/css/style.css\">"<<endl<<"\
 					</head>"<<endl<<"\
 					<body background = \"/sources/images/Cubes_Back.jpg\">"<<endl<<"\
-						<img src=\"/sources/images/Logo.jpg\" alt=\"No image found\" align=\"right\" width=\"359\" height=\"359\">"<<endl<<"\
-						<img src=\"/sources/images/Logo.png\" alt=\"No image found\" align=\"left\" width=\"1536\" height=\"359\">"<<endl<<"\
-						<p class=\"unvisible\">F</p>"<<endl<<"\
-						<form action=\"delay.html\">"<<endl<<"\
-							<table cellspacing=\"0\" align=\"center\" border=\"3\" width=\"300\" height=\"300\" bgcolor=\"white\">"<<endl<<"\
+                        <div class=\"title_logo\">"<<endl<<"\
+                            <img src=\"/sources/images/Logo.jpg\" alt=\"No image found\" align=\"right\" width=\"20%\">"<<endl<<"\
+                            <img src=\"/sources/images/Logo.png\" alt=\"No image found\" align=\"left\" width=\"77%\">"<<endl<<"\
+                        </div>"<<endl<<"\
+						<form style=\"padding-top:25%\" action=\"delay.html\">"<<endl<<"\
+							<table cellspacing=\"0\" align=\"center\" border=\"3\" width=\"300px\" height=\"300px\" bgcolor=\"white\">"<<endl<<"\
 								<tr height=\"50\">"<<endl<<"\
 									<td valing=\"middle\">"<<endl<<"\
 										<h1 align=\"center\">LOG IN</h1>"<<endl<<"\
