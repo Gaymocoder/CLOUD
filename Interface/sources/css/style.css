@@ -6,14 +6,14 @@
 
 .files
 {
-	position: absolute;
-	bottom: 100px;
-	top: 100px;
-	left: 200px;
-	right: 200px;
+	position: relative;
+    width: 77%;
+    height: 77%;
+	top: 10%;
+	left: 10%;
 	background: #ffffff;
-	overflow: auto;
-	border: 2px solid #2C2C2C
+	border: 2px solid #2C2C2C;
+    overflow: auto;
 }
 
 .table-header-1
@@ -23,15 +23,20 @@
 	font-weight: bold;
 }
 
+.autherror-logo
+{
+    position: relative;
+}
+
 .page-header
 {
+    position: relative;
 	border: 2px solid #2C2C2C;
-	position: absolute;
 	font-family: Arial;
 	font-size: 40pt;
-	top: 37px;
-	left: 726px;
+	text-align: center;
 	background: #ffffff;
+    width: 50%;
 }
 
 .exit
@@ -44,28 +49,28 @@
 	background: #ffffff;
 }
 
-.logo-error
-{
-	position: absolute;
-	top: 400px;
-	left: 775px;
-	width: 400px;
-}
-
 .left-if
 {
-	position: absolute;
-	top: 600px;
-	left: 300px;
+	position: relative;
+    width: 20%;
+    left: 7%;
+    height: 38%;
 	font-family: Arial;
 	font-size: 20pt;
 }
 
+.if
+{
+    position: relative;
+    top:100px;    
+}
+
 .right-if
 {
-	position: absolute;
-	top: 600px;
-	right: 300px;
+	position: relative;
+    right: 7%;
+    width: 20%;
+    height: 38%;
 	font-family: Arial;
 	font-size: 20pt;
 }
@@ -74,35 +79,30 @@
 {
 	font-family: Arial;
 	font-size: 20pt;
-	position: absolute;
-	top: 775px;
-	left: 685px;
+    position: relative;
+	top: 3%;
 }
 
 .log-in-error
 {
-	position: absolute;
-	top: 950px;
-	left: 775px;
-	width: 400px;
+	position: relative;
+    top: 6%
 }
 
 .form-file-sender
 {
-	position: absolute;
-	top: 8px;
-	left: 80px;
+	position: relative;
+    top: 7px;
 }
 
 .send-file
 {
 	border: 3px solid #2C2C2C;
-	position: absolute;
+	position: relative;
 	background: #ffffff;
-	top: 834px;
-	right: 760px;
-	left: 760px;
-	bottom: 20px;
+    width: 70%;
+    height: 80px;
+    left: 15%;
 }
 
 .file-struct
@@ -135,10 +135,8 @@
 	font-family: Times New Roman;
 	font-size: 20pt;
 	position: absolute;
-	bottom: 20px;
-	top: 834px;
-	left: 1320px;
-	right: 200px;
+    width: 15%;
+    right: 0.7%;
 	background: #ffffff;
 }
 
@@ -147,16 +145,15 @@
 	border: 3px solid #2C2C2C;
 	font-family: Times New Roman;
 	font-size: 20pt;
-	position: absolute;
-	bottom: 20px;
-	top: 834px;
-	left: 1320px;
-	right: 200px;
+    position: absolute;
+    width: 15%;
+    left: 0%;
+	background: #ffffff;
 }
 
 .size-size
 {
-	position: absolute;
-	left: 10px;
-	right: 10px;
+    position: relative;
+    top: 0%;
+    height: 10%;
 }
