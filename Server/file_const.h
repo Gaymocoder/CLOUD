@@ -5,6 +5,33 @@
 #include <cmath>
 using namespace std;
 
+vector <string> GetCookies(string CookiesList)
+{
+    int k = 1;
+    for(size_t i = 0; i<CookiesList.length(); i++)
+    {
+        if(CookiesList[i] == ';')
+            k++;
+    }
+    int j = 0;
+    vector <string> Cookies (k);
+    for(size_t i = 0; i<CookiesList.length(); i++)
+    {
+        while (i != CookiesList.length())
+        {
+            if (CookiesList[i] == ';')
+            {
+                i++;
+                break;
+            }
+            Cookies[j] += CookiesList[i];
+            i++;
+        }
+        j++;
+    }
+    return Cookies;
+}
+
 class file_struct
 {
 	public:
@@ -33,7 +60,7 @@ string round_d(string a)
 	return a;
 } 
 
-vector<file_struct> sort(string sn, string pn, string sort, string size, string date)
+vector <file_struct> sort(string sn, string pn, string sort, string size, string date)
 {
 	double used_size_d = 0;
 	string used_size;
