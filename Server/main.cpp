@@ -91,14 +91,11 @@ int main()
             if (login_input == login && password_input == password)
             {
                 req->SetResponseAttr(Http::Response::Header::SetCookie::Value, "auntificated=true");
-                cout<<"Correct"<<endl;
                 Cookie = "Cookies: " + req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
-                cout<<Cookie<<endl<<endl;
             }
             else
             {
                 req->SetResponseAttr(Http::Response::Header::SetCookie::Value, "auntificated=false");
-                cout<<"Incorrect"<<endl;
             }
         }
         if (Http::Content::TypeFromFileName(Path) == Http::Content::Type::html::Value)
