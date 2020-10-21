@@ -15,16 +15,14 @@ using namespace std;
 
 int main()
 {
-  char const SrvAddress[] = "127.0.0.1";
+  char const SrvAddress[] = "192.168.1.2";
   std::uint16_t SrvPort = 5555;
-  std::uint16_t SrvThreadCount = 4;
+  std::uint16_t SrvThreadCount = 20;
   std::string const RootDir = "../Interface";
   std::string const DefaultPage = "index.html";
   std::mutex Mtx;
   const string login = "admin";
   const string password = "admin";
-  string login_input = "";
-  string password_input = "";
   file_struct file;
   try
   {
@@ -32,22 +30,26 @@ int main()
     HttpServer Srv(SrvAddress, SrvPort, SrvThreadCount,
       [&] (IHttpRequestPtr req) 
       {
+        string login_input = "";
+        string password_input = "";
         std::string Path = req->GetPath();
         Path = RootDir + Path + (Path == "/" ? DefaultPage : std::string());
+        if (Http::Content::TypeFromFileName(Path) == Http::Content::Type::html::Value)
         {
-          std::stringstream Io;
-          Io << "Path: " << Path << std::endl
-             << Http::Request::Header::Host::Name << ": "
-                  << req->GetHeaderAttr(Http::Request::Header::Host::Value) << std::endl
-             << Http::Request::Header::Referer::Name << ": "
-                  << req->GetHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
-          std::lock_guard<std::mutex> Lock(Mtx);
-          std::cout << Io.str() << std::endl;
+            {
+                std::stringstream Io;
+                Io << "Path: " << Path << std::endl
+                    << Http::Request::Header::Host::Name << ": "
+                        << req->GetHeaderAttr(Http::Request::Header::Host::Value) << std::endl
+                    << Http::Request::Header::Referer::Name << ": "
+                        << req->GetHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
+                std::lock_guard<std::mutex> Lock(Mtx);
+                std::cout << Io.str();
+            }
         }
         req->SetResponseAttr(Http::Response::Header::Server::Value, "MyTestServer");
         req->SetResponseAttr(Http::Response::Header::ContentType::Value,
                              Http::Content::TypeFromFileName(Path));
-        req->SetResponseFile(Path);
         auto Params = req->GetParams();
         auto RequestType = req->GetRequestType();
         string req_type;
@@ -63,20 +65,55 @@ int main()
 				req_type = "POST";
 		}
 		string delete_num;
+        bool auth = false;
 		bool delete_bool = false;
 		for(const auto& i : Params)
 		{
 			if (i.first == "Login")
+            {
 				login_input = i.second;
+                auth = true;
+                cout<<login_input<<endl;
+            }
 			if (i.first == "Password")
 				password_input = i.second;
+                cout<<password_input<<endl;
 			if (i.first == "delete")
 			{
 				delete_num = i.second;
 				delete_bool = true;
 			}
 		}
-		auto ContentSize = req->GetContentSize();
+        string Cookie;
+        bool Authorized = false;
+        if (auth == true)
+        {
+            if (login_input == login && password_input == password)
+            {
+                req->SetResponseAttr(Http::Response::Header::SetCookie::Value, "auntificated=true");
+                cout<<"Correct"<<endl;
+                Cookie = "Cookies: " + req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
+                cout<<Cookie<<endl<<endl;
+            }
+            else
+            {
+                req->SetResponseAttr(Http::Response::Header::SetCookie::Value, "auntificated=false");
+                cout<<"Incorrect"<<endl;
+            }
+        }
+        if (Http::Content::TypeFromFileName(Path) == Http::Content::Type::html::Value)
+        {
+            Cookie = "Cookies: " + req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
+            cout<<Cookie<<endl<<endl;
+            string Cookies = req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
+            auto CookiesList = GetCookies(Cookies);
+            for(size_t i = 0; i<CookiesList.size(); i++)
+            {
+                if (CookiesList[i] == "auntificated=true")
+                    Authorized = true;
+            }
+        }
+        auto ContentSize = req->GetContentSize();
 		string ru_let;
 		string ru_var;
 		string public_name = "../Interface/sources/content/public_name.txt";
@@ -108,7 +145,7 @@ int main()
 				{	
 					fs_size = round_d(to_string(f_size)) + " KB";
 				}
-				else
+				 else
 				{
 					f_size = round(f_size/1024*10)/10;
 					if(f_size<1024)
@@ -409,6 +446,7 @@ int main()
 		ofstream access_error("../Interface/access_error.html");
 		ofstream send_file("../Interface/send-file.html");
 		ofstream exit("../Interface/exit.html");
+        ofstream delay_web1("../Interface/delay1.html");
 		exit<<"\
 			<html>"<<endl<<"\
 				<head>"<<endl<<"\
@@ -419,7 +457,17 @@ int main()
 				</body>"<<endl<<"\
 			</html>"<<endl<<"\
 		";
-		if (login==login_input&&password==password_input)
+        delay_web1<<"\
+			<html>"<<endl<<"\
+				<head>"<<endl<<"\
+					<link rel=\"shortcut icon\" href=\"/sources/images/favicon.ico\" type=\"image/x-icon\">"<<endl<<"\
+					<meta http-equiv=\"refresh\" content=\"0;URL=delay.html\" />"<<endl<<"\
+				</head>"<<endl<<"\
+				<body>"<<endl<<"\
+				</body>"<<endl<<"\
+			</html>"<<endl<<"\
+		";
+		if (Authorized == true)
 		{
 			index<<"\
 				<html>"<<endl<<"\
@@ -432,7 +480,7 @@ int main()
 					</head>"<<endl<<"\
 					<body background = \"/sources/images/Cubes_Back.jpg\">"<<endl<<"\
 						<div class=\"exit\">"<<endl<<"\
-							<a href=\"exit.html?Login=sss&Password=fff\">Exit</a>"<<endl<<"\
+							<a href=\"exit.html?Login="<<login<<"incorrect&Password="<<password<<"incorrect\">Exit</a>"<<endl<<"\
 						</div>"<<endl<<"\
                         <div class=\"files\" style=\"height: 90%; border: 0; background: 0\">"<<endl<<"\
                             <div class=\"files\" style=\"width: 99%; top: 0; left: 0\">"<<endl<<"\
@@ -602,7 +650,7 @@ int main()
                                 ...try again. With correct login and password."<<endl<<"\
                             </div>"<<endl<<"\
                             <div class=\"log-in-error\" align=\"center\">"<<endl<<"\
-                                <form action=\"delay.html\">"<<endl<<"\
+                                <form action=\"delay1.html\">"<<endl<<"\
                                     <table cellspacing=\"0\" align=\"center\" border=\"3\" width=\"300\" height=\"300\" bgcolor=\"white\">"<<endl<<"\
                                         <tr height=\"50\">"<<endl<<"\
                                             <td valing=\"middle\">"<<endl<<"\
@@ -642,7 +690,7 @@ int main()
                             <img src=\"/sources/images/Logo.jpg\" alt=\"No image found\" align=\"right\" width=\"20%\">"<<endl<<"\
                             <img src=\"/sources/images/Logo.png\" alt=\"No image found\" align=\"left\" width=\"77%\">"<<endl<<"\
                         </div>"<<endl<<"\
-						<form style=\"padding-top:25%\" action=\"delay.html\">"<<endl<<"\
+						<form style=\"padding-top:25%\" action=\"delay1.html\">"<<endl<<"\
 							<table cellspacing=\"0\" align=\"center\" border=\"3\" width=\"300px\" height=\"300px\" bgcolor=\"white\">"<<endl<<"\
 								<tr height=\"50\">"<<endl<<"\
 									<td valing=\"middle\">"<<endl<<"\
@@ -679,6 +727,7 @@ int main()
 					</body>"<<endl<<"\
 				</html>"<<endl;
 		}
+        req->SetResponseFile(Path);
     });
     std::cin.get();
   }
@@ -686,6 +735,5 @@ int main()
   {
     std::cout << e.what() << std::endl;
   }
-
   return 0;
 }
