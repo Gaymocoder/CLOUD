@@ -75,11 +75,9 @@ int main()
             {
 				login_input = i.second;
                 auth = true;
-                cout<<login_input<<endl;
             }
 			if (i.first == "Password")
 				password_input = i.second;
-                cout<<password_input<<endl;
 			if (i.first == "delete")
 			{
 				delete_num = i.second;
