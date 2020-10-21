@@ -15,7 +15,7 @@ using namespace std;
 
 int main()
 {
-  char const SrvAddress[] = "127.0.0.1";
+  char const SrvAddress[] = "127.0.0.7";
   std::uint16_t SrvPort = 5555;
   std::uint16_t SrvThreadCount = 20;
   std::string const RootDir = "../Interface";
@@ -23,6 +23,8 @@ int main()
   std::mutex Mtx;
   const string login = "admin";
   const string password = "admin";
+  const string CookieLogin = "login="+login;
+  const string CookiePassword = "password="+password;
   file_struct file;
   try
   {
@@ -88,15 +90,10 @@ int main()
         bool Authorized = false;
         if (auth == true)
         {
-            if (login_input == login && password_input == password)
-            {
-                req->SetResponseAttr(Http::Response::Header::SetCookie::Value, "auntificated=true");
-                Cookie = "Cookies: " + req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
-            }
-            else
-            {
-                req->SetResponseAttr(Http::Response::Header::SetCookie::Value, "auntificated=false");
-            }
+            string login_cookie = "login=" + login_input;
+            string password_cookie = "password=" + password_input;
+            req->SetResponseAttr(Http::Response::Header::SetCookie::Value, login_cookie);
+            req->SetResponseAttr(Http::Response::Header::SetCookie::Value, password_cookie);
         }
         if (Http::Content::TypeFromFileName(Path) == Http::Content::Type::html::Value)
         {
@@ -104,9 +101,9 @@ int main()
             cout<<Cookie<<endl<<endl;
             string Cookies = req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
             auto CookiesList = GetCookies(Cookies);
-            for(size_t i = 0; i<CookiesList.size(); i++)
+            for(size_t i = 0; i<CookiesList.size()-1; i++)
             {
-                if (CookiesList[i] == "auntificated=true")
+                if (CookiesList[i] == CookieLogin && CookiesList[i+1] == CookiePassword)
                     Authorized = true;
             }
         }
