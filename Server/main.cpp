@@ -15,7 +15,7 @@ using namespace std;
 
 int main()
 {
-  char const SrvAddress[] = "127.0.0.1";
+  char const SrvAddress[] = "192.168.1.2";
   std::uint16_t SrvPort = 5555;
   std::uint16_t SrvThreadCount = 20;
   std::string const RootDir = "../Interface";
@@ -67,23 +67,48 @@ int main()
 				req_type = "POST";
 		}
 		string delete_num;
-        bool auth = false;
+        bool auth = true;
 		bool delete_bool = false;
-		for(const auto& i : Params)
-		{
-			if (i.first == "Login")
+        size_t i = 0;
+        auto ContentSize = req->GetContentSize();
+        std::vector <char> Buf(ContentSize);
+        req->GetContent(&Buf[0], ContentSize, true);
+        for(size_t i = 0; i<ContentSize; i++)
+        {
+            if (Buf[i] == '\n')
             {
-				login_input = i.second;
-                auth = true;
+                auth = false;
+                break;
             }
-			if (i.first == "Password")
-				password_input = i.second;
-			if (i.first == "delete")
-			{
-				delete_num = i.second;
-				delete_bool = true;
-			}
-		}
+        }
+        if (auth)
+        {
+            string auth_check = "";
+            while (i<ContentSize)
+            {
+                auth_check += Buf[i];
+                i++;
+            }
+            if (auth_check.find("Login=") == 0)
+            {
+                auth = true;
+                i = 6;
+                while (Buf[i] != '&')
+                {
+                    login_input += Buf[i];
+                    i++;
+                }
+                i += 10;
+                while (i < ContentSize)
+                {
+                    password_input += Buf[i];
+                    i++;
+                }
+            }
+            else
+                auth = false;
+            i = 0;
+        }
         string Cookie;
         bool Authorized = false;
         if (auth == true)
@@ -105,7 +130,6 @@ int main()
                     Authorized = true;
             }
         }
-        auto ContentSize = req->GetContentSize();
 		string ru_let;
 		string ru_var;
 		string public_name = "../Interface/sources/content/public_name.txt";
@@ -126,7 +150,7 @@ int main()
 		for(int i = 0; i<200; i++)
 			command_buf[i] = 0;
 		ifstream fs(free_size);
-		int i = 0;
+		i = 0;
 		while(getline(fs,s_buf))
 		{
 			if(i>0)
@@ -159,7 +183,7 @@ int main()
 			}
 			i++;
 		}
-        if(ContentSize > 0)					
+        if(ContentSize > 0 && auth == false)
         {
 			if(ContentSize > f_size_byte);
 			else
@@ -167,20 +191,31 @@ int main()
 				file.file_path = "";
 				file.server_name = "";
 				file.public_name = "";				
-				std::vector <char> Buf(ContentSize);
 				req->GetContent(&Buf[0], ContentSize, true);
-				int i = 0;
+				i = 0;
 				while(Buf[i]!='\n')
 					i++;
 				const int first_buf_line = i;
-				size_t num = first_buf_line+56;
+                string s = "nothing";
+                i = 0;
+                while (s.find("Content-Disposition") != 0)
+                {
+                    s = "";
+                    while (Buf[i] != '\n')
+                    {
+                        s += Buf[i];
+                        i++;
+                    }
+                    i++;
+                }
+                size_t num = first_buf_line + s.find("filename=") + 11; //in "filename=" 9 chars + 1 cause of '"' and + 1 case of 0 count in s.find
 				bool contain = false;
 				while(Buf[num]!='"')
 				{
 					file.public_name += Buf[num];
 					num++;
 				}
-				num = first_buf_line+56;
+				num = first_buf_line + s.find("filename=") + 11; 
 				while(Buf[num]!='"')
 				{
 					if(Buf[num]=='&'&&Buf[num+1]=='#')
@@ -472,7 +507,11 @@ int main()
 					</head>"<<endl<<"\
 					<body background = \"/sources/images/Cubes_Back.jpg\">"<<endl<<"\
 						<div class=\"exit\">"<<endl<<"\
-							<a href=\"exit.html?Login="<<login<<"incorrect&Password="<<password<<"incorrect\">Exit</a>"<<endl<<"\
+							<form action=\"exit.html\" method=\"post\">"<<endl<<"\
+                                <input value=\"Exit\" type=\"submit\" style=\"width: 100px; height: 50px; font-size: 30px\">"<<endl<<"\
+                                <input value=\""<<login<<"incorrect\" name=\"Login\" type=\"text\" align=\"center\" style=\"display: none\"><br>"<<endl<<"\
+                                <input value=\""<<password<<"incorrect\" name=\"Password\" type=\"password\" align=\"center\" style=\"display: none\"><br>"<<endl<<"\
+                            </form>"<<endl<<"\
 						</div>"<<endl<<"\
                         <div class=\"files\" style=\"height: 90%; border: 0; background: 0\">"<<endl<<"\
                             <div class=\"files\" style=\"width: 99%; top: 0; left: 0\">"<<endl<<"\
@@ -642,7 +681,7 @@ int main()
                                 ...try again. With correct login and password."<<endl<<"\
                             </div>"<<endl<<"\
                             <div class=\"log-in-error\" align=\"center\">"<<endl<<"\
-                                <form action=\"delay1.html\">"<<endl<<"\
+                                <form action=\"delay1.html\" method=\"post\">"<<endl<<"\
                                     <table cellspacing=\"0\" align=\"center\" border=\"3\" width=\"300\" height=\"300\" bgcolor=\"white\">"<<endl<<"\
                                         <tr height=\"50\">"<<endl<<"\
                                             <td valing=\"middle\">"<<endl<<"\
@@ -682,7 +721,7 @@ int main()
                             <img src=\"/sources/images/Logo.jpg\" alt=\"No image found\" align=\"right\" width=\"20%\">"<<endl<<"\
                             <img src=\"/sources/images/Logo.png\" alt=\"No image found\" align=\"left\" width=\"77%\">"<<endl<<"\
                         </div>"<<endl<<"\
-						<form style=\"padding-top:25%\" action=\"delay1.html\">"<<endl<<"\
+						<form style=\"padding-top:25%\" action=\"delay1.html\" method=\"post\">"<<endl<<"\
 							<table cellspacing=\"0\" align=\"center\" border=\"3\" width=\"300px\" height=\"300px\" bgcolor=\"white\">"<<endl<<"\
 								<tr height=\"50\">"<<endl<<"\
 									<td valing=\"middle\">"<<endl<<"\
