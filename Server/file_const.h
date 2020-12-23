@@ -230,7 +230,6 @@ vector<file_struct> FileDelete(string num, vector<file_struct> file_list)
 	}
 	else
 	{
-        cout<<"Hello1"<<endl;
 		int numm = stoi(num);
 		num = "";
 		char command_buf[200];
@@ -243,7 +242,6 @@ vector<file_struct> FileDelete(string num, vector<file_struct> file_list)
 		ofstream sn_n("../Interface/sources/content/server_name_new.txt");
 		ifstream pn("../Interface/sources/content/public_name.txt");
 		ofstream pn_n("../Interface/sources/content/public_name_new.txt");
-        cout<<"Hello2"<<endl;
 		while(getline(sn,num))
 		{
 			if(num==file_list[numm].ServerName);
@@ -256,7 +254,6 @@ vector<file_struct> FileDelete(string num, vector<file_struct> file_list)
 			else
 				pn_n<<num<<endl;
 		}
-        cout<<"Hello3"<<endl;
 		system("rm ../Interface/sources/content/server_name.txt");
 		system("mv ../Interface/sources/content/server_name_new.txt ../Interface/sources/content/server_name.txt");
 		system("rm ../Interface/sources/content/public_name.txt");
@@ -271,12 +268,10 @@ vector<file_struct> FileDelete(string num, vector<file_struct> file_list)
 			file_list[i-1].Path = file_list[i].Path;
 			file_list[i-1].BytedSize = file_list[i].BytedSize;
 		}
-        cout<<"Hello4"<<endl;
 	}
 	system("ls ../Interface/yourcloud  -l --time-style=\"+%Y-%m-%d_%H:%M:%S\" | awk '{print $6}' > ../Interface/sources/content/dates.txt");
 	system("ls -l ../Interface/yourcloud | awk '{print $5}' > ../Interface/sources/content/sizes.txt");
 	system("df ../Interface/yourcloud/ | awk '{print $4}' > ../Interface/sources/content/free_size.txt");
 	system("ls -1 ../Interface/yourcloud > ../Interface/sources/content/sorted.txt");
-    cout<<"Hello5"<<endl;
 	return file_list;
 }
