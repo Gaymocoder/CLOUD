@@ -15,95 +15,89 @@ using namespace std;
 
 int main()
 {
-    std::string SrvAddress;
-    std::uint16_t SrvPort = 0;
-    std::uint16_t SrvThreadCount = 0;
-    std::string RootDir;
-    std::string DefaultPage;
-    std::string login;
-    std::string password;
-    std::string s = "";
-    std::string s_buf = "";
-    ifstream config("../config.ini");
-    
-    while (getline(config, s))
+    std::string SrvAddress, RootDir, DefaultPage, Login, Password, Line, LineBuf;
+    std::uint16_t SrvPort = 0, SrvThreadCount = 0;
+    ifstream Config("../config.ini");
+    // Start of parsing config.ini with initializing main variables
+    while (getline(Config, Line))
     {
-        if (s.find("Server IP:") == 0)
+        if (Line.find("Server IP:") == 0)
         {
-            for(size_t i = 11; i<s.length(); i++)
+            for(size_t i = 11; i<Line.length(); i++)
             {
-                s_buf += s[i];
+                LineBuf += Line[i];
             }
-            SrvAddress = s_buf;
-            s_buf = "";
+            SrvAddress = LineBuf;
+            LineBuf = "";
         }
-        if (s.find("Port:") == 0)
+        if (Line.find("Port:") == 0)
         {
-            for(size_t i = 6; i<s.length(); i++)
+            for(size_t i = 6; i<Line.length(); i++)
             {
-                s_buf += s[i];
+                LineBuf += Line[i];
             }
-            SrvPort = std::stoi(s_buf);
-            s_buf = "";
+            SrvPort = std::stoi(LineBuf);
+            LineBuf = "";
         }
-        if (s.find("Threads count:") == 0)
+        if (Line.find("Threads count:") == 0)
         {
-            for(size_t i = 15; i<s.length(); i++)
+            for(size_t i = 15; i<Line.length(); i++)
             {
-                s_buf += s[i];
+                LineBuf += Line[i];
             }
-            SrvThreadCount = std::stoi(s_buf);
-            s_buf = "";
+            SrvThreadCount = std::stoi(LineBuf);
+            LineBuf = "";
         }
-        if (s.find("Root Directory:") == 0)
+        if (Line.find("Root Directory:") == 0)
         {
-            for(size_t i = 16; i<s.length(); i++)
+            for(size_t i = 16; i<Line.length(); i++)
             {
-                s_buf += s[i];
+                LineBuf += Line[i];
             }
-            RootDir = s_buf;
-            s_buf = "";
+            RootDir = LineBuf;
+            LineBuf = "";
         }
-        if (s.find("Default Page:") == 0)
+        if (Line.find("Default Page:") == 0)
         {
-            for(size_t i = 14; i<s.length(); i++)
+            for(size_t i = 14; i<Line.length(); i++)
             {
-                s_buf += s[i];
+                LineBuf += Line[i];
             }
-            DefaultPage = s_buf;
-            s_buf = "";
+            DefaultPage = LineBuf;
+            LineBuf = "";
         }
-        if (s.find("CLOUD Login:") == 0)
+        if (Line.find("CLOUD Login:") == 0)
         {
-            for(size_t i = 13; i<s.length(); i++)
+            for(size_t i = 13; i<Line.length(); i++)
             {
-                s_buf += s[i];
+                LineBuf += Line[i];
             }
-            login = s_buf;
-            s_buf = "";
+            Login = LineBuf;
+            LineBuf = "";
         }
-        if (s.find("CLOUD Password:") == 0)
+        if (Line.find("CLOUD Password:") == 0)
         {
-            for(size_t i = 16; i<s.length(); i++)
+            for(size_t i = 16; i<Line.length(); i++)
             {
-                s_buf += s[i];
+                LineBuf += Line[i];
             }
-            password = s_buf;
-            s_buf = "";
+            Password = LineBuf;
+            LineBuf = "";
         }
     }
     std::mutex Mtx;
-    const string CookieLogin = "login="+login;
-    const string CookiePassword = "password="+password;
-    file_struct file;
+    const std::string CookieLogin = "login="+Login;
+    const std::string CookiePassword = "password="+Password;
+    file_struct File;
+    
+    // Server initializing, cycle starting
     try
     {
         using namespace Network;
         HttpServer Srv(SrvAddress, SrvPort, SrvThreadCount,
         [&] (IHttpRequestPtr req) 
         {
-            string login_input = "";
-            string password_input = "";
+            // Cout of execution
             std::string Path = req->GetPath();
             Path = RootDir + Path + (Path == "/" ? DefaultPage : std::string());
             if (Http::Content::TypeFromFileName(Path) == Http::Content::Type::html::Value)
@@ -122,439 +116,395 @@ int main()
             req->SetResponseAttr(Http::Response::Header::Server::Value, "MyTestServer");
             req->SetResponseAttr(Http::Response::Header::ContentType::Value,
                                  Http::Content::TypeFromFileName(Path));
-            auto Params = req->GetParams();
-            auto RequestType = req->GetRequestType();
-            string req_type;
-            switch (RequestType)
-            {
-                case IHttpRequest::Type::GET:
-                    req_type = "GET";
-                case IHttpRequest::Type::HEAD:
-                    req_type = "HEAD";
-                case IHttpRequest::Type::PUT:
-                    req_type = "PUT";	
-                case IHttpRequest::Type::POST:
-                    req_type = "POST";
-            }
-            string delete_num;
-            bool auth = true;
-            bool delete_bool = false;
-            size_t i = 0;
+                                 
+            // Parsing of POST request
+            std::string LogIn = "",
+                        PassIn = "",
+                        DeleteNumber = "";
+            bool FileRequest = false,
+                 AuthRequest = false,
+                 DeleteRequest = false;
+            size_t CountBuf = 0;
             auto ContentSize = req->GetContentSize();
             std::vector <char> Buf(ContentSize);
             req->GetContent(&Buf[0], ContentSize, true);
-            i = 0;
             for(size_t i = 0; i<ContentSize; i++)
             {
                 if (Buf[i] == '\n')
                 {
-                    auth = false;
+                    FileRequest = true;
                     break;
                 }
             }
-            if (auth)
+            if (not FileRequest)
             {
-                string auth_check = "";
-                while (i<ContentSize)
+                string RequestCheck = "";
+                while (CountBuf<ContentSize)
                 {
-                    auth_check += Buf[i];
-                    i++;
+                    RequestCheck += Buf[CountBuf];
+                    CountBuf++;
                 }
-                if (auth_check.find("Login=") == 0)
+                if (RequestCheck.find("Login=") == 0)
                 {
-                    auth = true;
-                    i = 6;
-                    while (Buf[i] != '&')
+                    AuthRequest = true;
+                    CountBuf = 6; // in "Login=" 6
+                    while (Buf[CountBuf] != '&')
                     {
-                        login_input += Buf[i];
-                        i++;
+                        LogIn += Buf[CountBuf];
+                        CountBuf++;
                     }
-                    i += 10;
-                    while (i < ContentSize)
+                    CountBuf += 10; // in "Password=" 10
+                    while (CountBuf < ContentSize)
                     {
-                        password_input += Buf[i];
-                        i++;
+                        PassIn += Buf[CountBuf];
+                        CountBuf++;
                     }
                 }
                 else
                 {
-                    if (auth_check.find("delete=") == 0)
+                    if (RequestCheck.find("delete=") == 0)
                     {
-                        i = 7;
-                        while (i < ContentSize)
+                        CountBuf = 7; // in "delete=" 7
+                        while (CountBuf < ContentSize)
                         {
-                            delete_num += Buf[i];
-                            i++;
+                            DeleteNumber += Buf[CountBuf];
+                            CountBuf++;
                         }
-                        delete_bool = true;
+                        DeleteRequest = true;
                     }
-                    auth = false;
+                    AuthRequest = false;
                 }                    
-                i = 0;
+                CountBuf = 0;
             }
             string Cookie;
             bool Authorized = false;
-            if (auth == true)
+            if (AuthRequest == true)
             {
-                string login_cookie = "login=" + login_input;
-                string password_cookie = "password=" + password_input;
-                req->SetResponseAttr(Http::Response::Header::SetCookie::Value, login_cookie);
-                req->SetResponseAttr(Http::Response::Header::SetCookie::Value, password_cookie);
+                string LogInCookie = "login=" + LogIn;
+                string PassInCookie = "password=" + PassIn;
+                req->SetResponseAttr(Http::Response::Header::SetCookie::Value, LogInCookie);
+                req->SetResponseAttr(Http::Response::Header::SetCookie::Value, PassInCookie);
             }
-            Cookie = "Cookies: " + req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
-            string Cookies = req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
+            std::string Cookies = req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
             auto CookiesList = GetCookies(Cookies);
-            bool login_found = false, password_found = false;
+            bool LoginCorrect = false, PasswordCorrect = false;
             for(size_t i = 0; i<CookiesList.size(); i++)
             {
                 if (CookiesList[i] == CookieLogin)
-                    login_found = true;
+                    LoginCorrect = true;
                 if (CookiesList[i] == CookiePassword)
-                    password_found = true;
-            }                    
-            if (login_found && password_found)
+                    PasswordCorrect = true;
+            }
+            if (LoginCorrect && PasswordCorrect)
                 Authorized = true;
             if (Http::Content::TypeFromFileName(Path) == Http::Content::Type::html::Value)
-                cout<<Cookie<<endl<<endl;
-            string ru_let;
-            string ru_var;
-            string public_name = "../Interface/sources/content/public_name.txt";
-            string server_name = "../Interface/sources/content/server_name.txt";
-            string dates = "../Interface/sources/content/dates.txt";
-            string sizes = "../Interface/sources/content/sizes.txt";
-            string free_size = "../Interface/sources/content/free_size.txt";
-            string s_buf;
-            double f_size_byte = 0;
-            double f_size;
-            string fs_size;
-            char command_buf[200];
+                cout<<"Cookies: "<<Cookies<<endl<<endl;
+            std::string PublicNamesPath = "../Interface/sources/content/public_name.txt",
+                        ServerNamesPath = "../Interface/sources/content/server_name.txt",
+                        DatesPath = "../Interface/sources/content/dates.txt",
+                        SizesPath = "../Interface/sources/content/sizes.txt",
+                        FSPath = "../Interface/sources/content/free_size.txt";
+            double BytedFS = 0,
+                   FS = 0;
+            string RoundedFS;
+            char CommandBuf[200];
             for(int i = 0; i<200; i++)
-                command_buf[i] = 0;
-            strcat(command_buf, "df ../Interface/yourcloud/ | awk '{print $4}' > ");
-            strcat(command_buf, free_size.c_str());
-            system(command_buf);
+                CommandBuf[i] = 0;
+            strcat(CommandBuf, "df ../Interface/yourcloud/ | awk '{print $4}' > ");
+            strcat(CommandBuf, FSPath.c_str());
+            system(CommandBuf);
             for(int i = 0; i<200; i++)
-                command_buf[i] = 0;
-            ifstream fs(free_size);
-            i = 0;
-            while(getline(fs,s_buf))
+                CommandBuf[i] = 0;
+            ifstream FSFile(FSPath);
+            while(getline(FSFile,Line))
             {
-                if(i>0)
+                if(CountBuf>0)
                 {
-                    f_size_byte = stod(s_buf)*1024;
-                    f_size = stod(s_buf);
-                    if(f_size<1024)
-                    {	
-                        fs_size = round_d(to_string(f_size)) + " KB";
-                    }
+                    BytedFS = stod(Line)*1024;
+                    FS = stod(Line);
+                    if(FS<1024)
+                        RoundedFS = round_d(to_string(FS)) + " KB";
                      else
                     {
-                        f_size = round(f_size/1024*10)/10;
-                        if(f_size<1024)
-                        {
-                            fs_size = round_d(to_string(f_size)) + " MB";
-                        }
+                        FS = round(FS/1024*10)/10;
+                        if(FS<1024)
+                            RoundedFS = round_d(to_string(FS)) + " MB";
                         else
                         {
-                            f_size = round(f_size/1024*10)/10;
-                            if(f_size<1024)
-                            {
-                                
-                                fs_size = round_d(to_string(f_size)) + " GB";
-                            }
+                            FS = round(FS/1024*10)/10;
+                            if(FS<1024)
+                                RoundedFS = round_d(to_string(FS)) + " GB";
                             else
-                                fs_size = round_d(to_string(f_size)) + " TB";
+                                RoundedFS = round_d(to_string(FS)) + " TB";
                         }
                     }
                 }
-                i++;
+                CountBuf++;
             }
-            if(ContentSize > 0 && auth == false && delete_bool == false)
+            if(ContentSize > 0 && FileRequest)
             {
-                if(ContentSize > f_size_byte);
+                if(ContentSize > BytedFS);
                 else
                 {
-                    file.file_path = "";
-                    file.server_name = "";
-                    file.public_name = "";				
-                    i = 0;
-                    while(Buf[i]!='\n')
-                        i++;
-                    const int first_buf_line = i;
-                    string s = "nothing";
-                    i = 0;
-                    while (s.find("Content-Disposition") != 0)
+                    File.Path = "";
+                    File.ServerName = "";
+                    File.PublicName = "";				
+                    CountBuf = 0;
+                    while(Buf[CountBuf]!='\n')
+                        CountBuf++;
+                    const int FirstBufLine = CountBuf++;
+                    Line = "nothing";
+                    CountBuf = 0;
+                    while (Line.find("Content-Disposition") != 0)
                     {
-                        s = "";
-                        while (Buf[i] != '\n')
+                        Line = "";
+                        while (Buf[CountBuf] != '\n')
                         {
-                            s += Buf[i];
-                            i++;
+                            Line += Buf[CountBuf];
+                            CountBuf++;
                         }
-                        i++;
+                        CountBuf++;
                     }
-                    size_t num = first_buf_line + s.find("filename=") + 11; //in "filename=" 9 chars + 1 cause of '"' and + 1 case of 0 count in s.find
-                    bool contain = false;
-                    while(Buf[num]!='"')
+                    CountBuf = FirstBufLine + Line.find("filename=") + 11; //in "filename=" 9 chars + 1 cause of '"' and + 1 case of 0 count in s.find
+                    bool CharIsRus;
+                    std::string RusChar = "";
+                    while(Buf[CountBuf]!='"')
+                    while(Buf[CountBuf]!='"')
                     {
-                        file.public_name += Buf[num];
-                        num++;
+                        File.PublicName += Buf[CountBuf];
+                        CountBuf++;
                     }
-                    num = first_buf_line + s.find("filename=") + 11; 
-                    while(Buf[num]!='"')
+                    CountBuf = 0; 
+                    while(CountBuf < File.PublicName.length())
                     {
-                        if(Buf[num]=='&'&&Buf[num+1]=='#')
+                        CharIsRus = false;
+                        if(File.PublicName[CountBuf]=='&' && File.PublicName[CountBuf + 1] == '#')
                         {
-                            ru_let = "";
-                            for(size_t i = num; i<num+7; i++)
-                                ru_let+=Buf[i];
-                            if(ru_let == "&#1025;")
-                                ru_var+="Yo";
-                            if(ru_let == "&#1105;")
-                                ru_var+="yo";
-                            if(ru_let == "&#1040;")
-                                ru_var+="A";
-                            if(ru_let == "&#1041;")
-                                ru_var+="B";
-                            if(ru_let == "&#1042;")
-                                ru_var+="V";
-                            if(ru_let == "&#1043;")
-                                ru_var+="G";
-                            if(ru_let == "&#1044;")
-                                ru_var+="D";
-                            if(ru_let == "&#1045;")
-                                ru_var+="E";
-                            if(ru_let == "&#1046;")
-                                ru_var+="J";
-                            if(ru_let == "&#1047;")
-                                ru_var+="Z";
-                            if(ru_let == "&#1048;")
-                                ru_var+="I";
-                            if(ru_let == "&#1049;")
-                                ru_var+="Y";
-                            if(ru_let == "&#1050;")
-                                ru_var+="K";
-                            if(ru_let == "&#1051;")
-                                ru_var+="L";
-                            if(ru_let == "&#1052;")
-                                ru_var+="M";
-                            if(ru_let == "&#1053;")
-                                ru_var+="N";
-                            if(ru_let == "&#1054;")
-                                ru_var+="O";
-                            if(ru_let == "&#1055;")
-                                ru_var+="P";
-                            if(ru_let == "&#1056;")
-                                ru_var+="R";
-                            if(ru_let == "&#1057;")
-                                ru_var+="S";
-                            if(ru_let == "&#1058;")
-                                ru_var+="T";
-                            if(ru_let == "&#1059;")
-                                ru_var+="U";
-                            if(ru_let == "&#1060;")
-                                ru_var+="F";
-                            if(ru_let == "&#1061;")
-                                ru_var+="H";
-                            if(ru_let == "&#1062;")
-                                ru_var+="Cc";
-                            if(ru_let == "&#1063;")
-                                ru_var+="Ch";
-                            if(ru_let == "&#1064;")
-                                ru_var+="Sh";
-                            if(ru_let == "&#1065;")
-                                ru_var+="Sh'";
-                            if(ru_let == "&#1066;");
-                            if(ru_let == "&#1067;")
-                                ru_var+="I";
-                            if(ru_let == "&#1068;");
-                            if(ru_let == "&#1069;")
-                                ru_var+="E";
-                            if(ru_let == "&#1070;")
-                                ru_var+="Yu";
-                            if(ru_let == "&#1071;")
-                                ru_var+="Ya";
-                            if(ru_let == "&#1072;")
-                                ru_var+="a";
-                            if(ru_let == "&#1073;")
-                                ru_var+="b";
-                            if(ru_let == "&#1074;")
-                                ru_var+="v";
-                            if(ru_let == "&#1075;")
-                                ru_var+="g";
-                            if(ru_let == "&#1076;")
-                                ru_var+="d";
-                            if(ru_let == "&#1077;")
-                                ru_var+="e";
-                            if(ru_let == "&#1078;")
-                                ru_var+="j";
-                            if(ru_let == "&#1079;")
-                                ru_var+="z";
-                            if(ru_let == "&#1080;")
-                                ru_var+="i";
-                            if(ru_let == "&#1081;")
-                                ru_var+="y";
-                            if(ru_let == "&#1082;")
-                                ru_var+="k";
-                            if(ru_let == "&#1083;")
-                                ru_var+="l";
-                            if(ru_let == "&#1084;")
-                                ru_var+="m";
-                            if(ru_let == "&#1085;")
-                                ru_var+="n";
-                            if(ru_let == "&#1086;")
-                                ru_var+="o";
-                            if(ru_let == "&#1087;")
-                                ru_var+="p";
-                            if(ru_let == "&#1088;")
-                                ru_var+="r";
-                            if(ru_let == "&#1089;")
-                                ru_var+="s";
-                            if(ru_let == "&#1090;")
-                                ru_var+="t";
-                            if(ru_let == "&#1091;")
-                                ru_var+="u";
-                            if(ru_let == "&#1092;")
-                                ru_var+="f";
-                            if(ru_let == "&#1093;")
-                                ru_var+="h";
-                            if(ru_let == "&#1094;")
-                                ru_var+="cc";
-                            if(ru_let == "&#1095;")
-                                ru_var+="ch";
-                            if(ru_let == "&#1096;")
-                                ru_var+="sh";
-                            if(ru_let == "&#1097;")
-                                ru_var+="sh'";
-                            if(ru_let == "&#1098;");
-                            if(ru_let == "&#1099;")
-                                ru_var+="i";
-                            if(ru_let == "&#1100;");
-                            if(ru_let == "&#1101;")
-                                ru_var+="e";
-                            if(ru_let == "&#1102;")
-                                ru_var+="yu";
-                            if(ru_let == "&#1103;")
-                                ru_var+="ya";
-                            contain = true;
-                            num++;
+                            CharIsRus = true;
+                            for(size_t i = CountBuf; i<CountBuf+7; i++)
+                                RusChar+=File.PublicName[i];
+                            cout<<RusChar<<endl;
+                            if(RusChar == "&#1025;")
+                                File.ServerName += "Yo";
+                            else if(RusChar == "&#1105;")
+                                File.ServerName += "yo";
+                            else if(RusChar == "&#1040;")
+                                File.ServerName += "A";
+                            else if(RusChar == "&#1041;")
+                                File.ServerName += "B";
+                            else if(RusChar == "&#1042;")
+                                File.ServerName += "V";
+                            else if(RusChar == "&#1043;")
+                                File.ServerName += "G";
+                            else if(RusChar == "&#1044;")
+                                File.ServerName += "D";
+                            else if(RusChar == "&#1045;")
+                                File.ServerName += "E";
+                            else if(RusChar == "&#1046;")
+                                File.ServerName += "J";
+                            else if(RusChar == "&#1047;")
+                                File.ServerName += "Z";
+                            else if(RusChar == "&#1048;")
+                                File.ServerName += "I";
+                            else if(RusChar == "&#1049;")
+                                File.ServerName += "Y";
+                            else if(RusChar == "&#1050;")
+                                File.ServerName += "K";
+                            else if(RusChar == "&#1051;")
+                                File.ServerName += "L";
+                            else if(RusChar == "&#1052;")
+                                File.ServerName += "M";
+                            else if(RusChar == "&#1053;")
+                                File.ServerName += "N";
+                            else if(RusChar == "&#1054;")
+                                File.ServerName += "O";
+                            else if(RusChar == "&#1055;")
+                                File.ServerName += "P";
+                            else if(RusChar == "&#1056;")
+                                File.ServerName += "R";
+                            else if(RusChar == "&#1057;")
+                                File.ServerName += "S";
+                            else if(RusChar == "&#1058;")
+                                File.ServerName += "T";
+                            else if(RusChar == "&#1059;")
+                                File.ServerName += "U";
+                            else if(RusChar == "&#1060;")
+                                File.ServerName += "F";
+                            else if(RusChar == "&#1061;")
+                                File.ServerName += "H";
+                            else if(RusChar == "&#1062;")
+                                File.ServerName += "Cc";
+                            else if(RusChar == "&#1063;")
+                                File.ServerName += "Ch";
+                            else if(RusChar == "&#1064;")
+                                File.ServerName += "Sh";
+                            else if(RusChar == "&#1065;")
+                                File.ServerName += "Sh'";
+                            else if(RusChar == "&#1066;");
+                            else if(RusChar == "&#1067;")
+                                File.ServerName += "I";
+                            else if(RusChar == "&#1068;");
+                            else if(RusChar == "&#1069;")
+                                File.ServerName += "E";
+                            else if(RusChar == "&#1070;")
+                                File.ServerName += "Yu";
+                            else if(RusChar == "&#1071;")
+                                File.ServerName += "Ya";
+                            else if(RusChar == "&#1072;")
+                                File.ServerName += "a";
+                            else if(RusChar == "&#1073;")
+                                File.ServerName += "b";
+                            else if(RusChar == "&#1074;")
+                                File.ServerName += "v";
+                            else if(RusChar == "&#1075;")
+                                File.ServerName += "g";
+                            else if(RusChar == "&#1076;")
+                                File.ServerName += "d";
+                            else if(RusChar == "&#1077;")
+                                File.ServerName += "e";
+                            else if(RusChar == "&#1078;")
+                                File.ServerName += "j";
+                            else if(RusChar == "&#1079;")
+                                File.ServerName += "z";
+                            else if(RusChar == "&#1080;")
+                                File.ServerName += "i";
+                            else if(RusChar == "&#1081;")
+                                File.ServerName += "y";
+                            else if(RusChar == "&#1082;")
+                                File.ServerName += "k";
+                            else if(RusChar == "&#1083;")
+                                File.ServerName += "l";
+                            else if(RusChar == "&#1084;")
+                                File.ServerName += "m";
+                            else if(RusChar == "&#1085;")
+                                File.ServerName += "n";
+                            else if(RusChar == "&#1086;")
+                                File.ServerName += "o";
+                            else if(RusChar == "&#1087;")
+                                File.ServerName += "p";
+                            else if(RusChar == "&#1088;")
+                                File.ServerName += "r";
+                            else if(RusChar == "&#1089;")
+                                File.ServerName += "s";
+                            else if(RusChar == "&#1090;")
+                                File.ServerName += "t";
+                            else if(RusChar == "&#1091;")
+                                File.ServerName += "u";
+                            else if(RusChar == "&#1092;")
+                                File.ServerName += "f";
+                            else if(RusChar == "&#1093;")
+                                File.ServerName += "h";
+                            else if(RusChar == "&#1094;")
+                                File.ServerName += "cc";
+                            else if(RusChar == "&#1095;")
+                                File.ServerName += "ch";
+                            else if(RusChar == "&#1096;")
+                                File.ServerName += "sh";
+                            else if(RusChar == "&#1097;")
+                                File.ServerName += "sh'";
+                            else if(RusChar == "&#1098;");
+                            else if(RusChar == "&#1099;")
+                                File.ServerName += "i";
+                            else if(RusChar == "&#1100;");
+                            else if(RusChar == "&#1101;")
+                                File.ServerName += "e";
+                            else if(RusChar == "&#1102;")
+                                File.ServerName += "yu";
+                            else if(RusChar == "&#1103;")
+                                File.ServerName += "ya";
+                            CountBuf++;
                         }	
+                        if(CharIsRus)
+                        {
+                            CountBuf += 6;
+                            RusChar = "";
+                        }
                         else
-                            if(contain==true)
-                            {
-                                num+=6;
-                                contain = false;
-                            }
-                            else
-                            {
-                                ru_var+=Buf[num];
-                                num++;
-                            }
+                        {
+                            File.ServerName += File.PublicName[CountBuf];
+                            CountBuf++;
+                        }
+                        cout<<File.ServerName<<endl;
                     }
-                    file.server_name = ru_var;
-                    cout<<file.server_name<<endl<<file.public_name<<endl;
-                    for(size_t i = 0; i<ru_var.length(); i++)
-                        if (ru_var[i] == ' ')
-                            file.server_name[i] = '_';
-                    file.file_path = "../Interface/yourcloud/" + file.server_name;
-                    cout<<file.server_name<<endl<<file.public_name<<endl;
-                    size_t content_start = 0;
+                    for(size_t i = 0; i<File.ServerName.length(); i++)
+                        if (File.ServerName[i] == ' ')
+                            File.ServerName[i] = '_';
+                    File.Path = "../Interface/yourcloud/" + File.ServerName;
+                    size_t FileStart = 0;
+                    CountBuf = 0;
                     for(size_t i = 0; i<ContentSize; i++)
                     {
-                        if(Buf[i]=='C'&&Buf[i+6]=='t'&&Buf[i+13]==' ')
+                        if (Buf[i] == '\n')
+                            CountBuf++;
+                        if (CountBuf == 4)
                         {
-                            for(size_t k = i+14; k<ContentSize; k++)
-                            {
-                                if(Buf[k]=='\n')
-                                {
-                                    content_start = k+3;
-                                    break;	
-                                }
-                            }
+                            FileStart = i+1;
                             break;
                         }
                     }
-                    size_t content_end = ContentSize - first_buf_line - 4;
-                    ofstream fileup(file.file_path);
-                    for(size_t i = content_start; i<content_end; i++)
+                    size_t FileEnd = ContentSize - FirstBufLine - 5;
+                    ofstream FileUpload(File.Path);
+                    cout<<"Record started"<<endl;
+                    for(size_t i = FileStart; i<FileEnd; i++)
                     {
-                        fileup<<Buf[i];
+                        FileUpload<<Buf[i];
                     }
-                    string public_name_new = "../Interface/sources/content/public_name_new.txt";
-                    string server_name_new = "../Interface/sources/content/server_name_new.txt";
-                    ifstream sn(server_name);
-                    ifstream pn(public_name);
-                    ofstream sn_n(server_name_new);
-                    ofstream pn_n(public_name_new);
-                    string file_buf;
-                    while(getline(sn,file_buf))
+                    cout<<"Record is finished"<<endl;
+                    ifstream ServerNames(ServerNamesPath);
+                    ifstream PublicNames(PublicNamesPath);
+                    Line = "";
+                    std::string ServerNamesBuf = "",
+                                PublicNamesBuf = "";
+                    while(getline(ServerNames, Line))
                     {
-                        if(file_buf==file.server_name);
+                        if(Line==File.ServerName);
                         else
-                            sn_n<<file_buf<<endl;
+                            ServerNamesBuf += Line + '\n';
                     }
-                    sn_n<<file.server_name<<endl;
-                    strcat(command_buf, "rm ");
-                    strcat(command_buf, server_name.c_str());
-                    system(command_buf);
-                    for(int i = 0; i<200; i++)
-                        command_buf[i] = 0;
-                    strcat(command_buf, "mv ");
-                    strcat(command_buf, server_name_new.c_str());
-                    strcat(command_buf, " ");
-                    strcat(command_buf, server_name.c_str());
-                    system(command_buf);
-                    for(int i = 0; i<200; i++)
-                        command_buf[i] = 0;
-                    while(getline(pn,file_buf))
+                    ServerNamesBuf += File.ServerName;
+                    while(getline(PublicNames, Line))
                     {
-                        if(file_buf==file.public_name);
+                        if(Line==File.PublicName);
                         else
-                            pn_n<<file_buf<<endl;
+                            PublicNamesBuf += Line + '\n';
                     }
-                    pn_n<<file.public_name<<endl;
-                    strcat(command_buf, "rm ");
-                    strcat(command_buf, public_name.c_str());
-                    system(command_buf);
-                    for(int i = 0; i<200; i++)
-                        command_buf[i] = 0;
-                    strcat(command_buf, "mv ");
-                    strcat(command_buf, public_name_new.c_str());
-                    strcat(command_buf, " ");
-                    strcat(command_buf, public_name.c_str());
-                    system(command_buf);
-                    for(int i = 0; i<200; i++)
-                        command_buf[i] = 0;
+                    ofstream ServerNamesNew(ServerNamesPath);
+                    ofstream PublicNamesNew(PublicNamesPath);
+                    cout<<PublicNamesBuf<<endl;
+                    PublicNamesBuf += File.PublicName;
+                    ServerNamesNew<<ServerNamesBuf;
+                    PublicNamesNew<<PublicNamesBuf;
+                    cout<<"Heh"<<endl;
                 }
             }
-            string sorted = "../Interface/sources/content/sorted.txt";
-            strcat(command_buf, "ls -1 ../Interface/yourcloud > ");
-            strcat(command_buf, sorted.c_str());
-            system(command_buf);
+            std::string SortedPath = "../Interface/sources/content/sorted.txt";
+            strcat(CommandBuf, "ls -1 ../Interface/yourcloud > ");
+            strcat(CommandBuf, SortedPath.c_str());
+            system(CommandBuf);
             for(int i = 0; i<200; i++)
-                command_buf[i] = 0;
-            strcat(command_buf, "ls ../Interface/yourcloud  -l --time-style=\"+%Y-%m-%d_%H:%M:%S\" | awk '{print $6}' > ");
-            strcat(command_buf, dates.c_str());
-            system(command_buf);
+                CommandBuf[i] = 0;
+            strcat(CommandBuf, "ls ../Interface/yourcloud  -l --time-style=\"+%Y-%m-%d_%H:%M:%S\" | awk '{print $6}' > ");
+            strcat(CommandBuf, DatesPath.c_str());
+            system(CommandBuf);
             for(int i = 0; i<200; i++)
-                command_buf[i] = 0;
-            strcat(command_buf, "ls -l ../Interface/yourcloud | awk '{print $5}' > ");
-            strcat(command_buf, sizes.c_str());
-            system(command_buf);
+                CommandBuf[i] = 0;
+            strcat(CommandBuf, "ls -l ../Interface/yourcloud | awk '{print $5}' > ");
+            strcat(CommandBuf, SizesPath.c_str());
+            system(CommandBuf);
             for(int i = 0; i<200; i++)
-                command_buf[i] = 0;
-            vector<file_struct> file_list;
-            file_list = sort(server_name, public_name, sorted, sizes, dates);
-            if(delete_bool == true)
+                CommandBuf[i] = 0;
+            vector <file_struct> Files;
+            Files = Sort(ServerNamesPath, PublicNamesPath, SortedPath, SizesPath, DatesPath);
+            if (DeleteRequest)
             {
-                file_list = file_delete(delete_num, file_list);
-                file_list = sort(server_name, public_name, sorted, sizes, dates);
+                Files = FileDelete(DeleteNumber, Files);
+                Files = Sort(ServerNamesPath, PublicNamesPath, SortedPath, SizesPath, DatesPath);
             }
-            string used_size;
-            if(file_list.size()==0)
-                used_size = "0 B";
+            std::string UsedSize;
+            if (Files.size() == 0)
+                UsedSize = "0 B";
             else
-                used_size = file_list[0].used_size;
+                UsedSize = Files[0].UsedSize;
             ofstream index("../Interface/index.html");
             ofstream delay_web("../Interface/delay.html");
             ofstream access_error("../Interface/access_error.html");
@@ -596,8 +546,8 @@ int main()
                             <div class=\"exit\">"<<endl<<"\
                                 <form action=\"exit.html\" method=\"post\">"<<endl<<"\
                                     <input value=\"Exit\" type=\"submit\" style=\"width: 100px; height: 50px; font-size: 30px\">"<<endl<<"\
-                                    <input value=\""<<login<<"incorrect\" name=\"Login\" type=\"text\" align=\"center\" style=\"display: none\"><br>"<<endl<<"\
-                                    <input value=\""<<password<<"incorrect\" name=\"Password\" type=\"password\" align=\"center\" style=\"display: none\"><br>"<<endl<<"\
+                                    <input value=\""<<Login<<"incorrect\" name=\"Login\" type=\"text\" align=\"center\" style=\"display: none\"><br>"<<endl<<"\
+                                    <input value=\""<<Password<<"incorrect\" name=\"Password\" type=\"password\" align=\"center\" style=\"display: none\"><br>"<<endl<<"\
                                 </form>"<<endl<<"\
                             </div>"<<endl<<"\
                             <div class=\"files\" style=\"height: 90%; border: 0; background: 0\">"<<endl<<"\
@@ -628,9 +578,9 @@ int main()
                                                 </div>"<<endl<<"\
                                             </td>"<<endl<<"\
                                         </tr>"<<endl;
-                if(file_list.size()>0)
+                if(Files.size()>0)
                 {
-                    for(size_t i = 0; i<file_list.size(); i++)
+                    for(size_t i = 0; i<Files.size(); i++)
                     {	
                         index<<"\
                                         <tr>"<<endl<<"\
@@ -643,17 +593,17 @@ int main()
                                                 <td width=\"38.5%\" height=\"10%\" align=\"center\">"<<endl<<"\
                                             </form>"<<endl<<"\
                                                 <div class=\"file-struct\">"<<endl<<"\
-                                                    <a href=\"yourcloud/"<<file_list[i].server_name<<"\" download>"<<file_list[i].public_name<<"<a/>"<<endl<<"\
+                                                    <a href=\"yourcloud/"<<Files[i].ServerName<<"\" download>"<<Files[i].PublicName<<"<a/>"<<endl<<"\
                                                 </div>"<<endl<<"\
                                             </td>"<<endl<<"\
                                             <td width=\"15.4%\" height=\"10%\" align=\"center\">"<<endl<<"\
                                                 <div class=\"file-struct\">"<<endl<<\
-                                                    file_list[i].date<<endl<<"\
+                                                    Files[i].Date<<endl<<"\
                                                 </div>"<<endl<<"\
                                             </td>"<<endl<<"\
                                             <td width=\"15.4%\" height=\"10%\" align=\"center\">"<<endl<<"\
                                                 <div class=\"file-struct\">"<<endl<<\
-                                                    file_list[i].size<<endl<<"\
+                                                    Files[i].Size<<endl<<"\
                                                 </div>"<<endl<<"\
                                             </td>"<<endl<<"\
                                         </tr>"<<endl;
@@ -679,12 +629,12 @@ int main()
                                 <div class=\"size-size\">"<<endl<<"\
                                     <div align=\"left\">"<<endl<<"\
                                         <div class=\"free-size\" align=\"center\">"<<endl<<\
-                                            fs_size<<" left"<<endl<<"\
+                                            RoundedFS<<" left"<<endl<<"\
                                         </div>"<<endl<<"\
                                     </div>"<<endl<<"\
                                     <div align=\"right\">"<<endl<<"\
                                         <div class=\"used-size\" align=\"center\">"<<endl<<\
-                                            used_size<<" used"<<endl<<"\
+                                            UsedSize<<" used"<<endl<<"\
                                         </div>"<<endl<<"\
                                     </div>"<<endl<<"\
                                     <div class=\"send-file\" align=\"center\">"<<endl<<"\
@@ -710,7 +660,7 @@ int main()
                         <body>"<<endl<<"\
                         </body>"<<endl<<"\
                     </html>"<<endl;
-                if(ContentSize > f_size_byte)
+                if(ContentSize > BytedFS)
                 {
                     send_file<<"\
                         <html>"<<endl<<"\
