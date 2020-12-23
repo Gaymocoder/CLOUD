@@ -35,14 +35,14 @@ vector <string> GetCookies(string CookiesList)
 class file_struct
 {
 	public:
-		string public_name;
-		string server_name;
-		string file_path;
-		string date;
-		string size;
-		string used_size;
-		int byte_size;
-		int byte_used_size;
+		string PublicName;
+		string ServerName;
+		string Path;
+		string Date;
+		string Size;
+		string UsedSize;
+		int BytedSize;
+		int BytedUsedSize;
 };		
 
 string round_d(string a)
@@ -54,13 +54,17 @@ string round_d(string a)
 		else
 			break;
 	}
-	for(size_t i = 0; i<a.length(); i++)
-		if(a[i]=='.'&&a[i+1]==0)
-			a[i+1] = '0';
+	for(size_t i = 0; i<a.length()-1; i++)
+		if(a[i] == '.')
+        {
+            if (a[i+1] == 0)
+                a[i+1] = '0';
+            break;
+        }
 	return a;
 } 
 
-vector <file_struct> sort(string sn, string pn, string sort, string size, string date)
+vector <file_struct> Sort(string sn, string pn, string sort, string size, string date)
 {
 	double used_size_d = 0;
 	string used_size;
@@ -92,27 +96,27 @@ vector <file_struct> sort(string sn, string pn, string sort, string size, string
 		i = 0;
 		while(getline(server_name,ss))
 		{
-			file_list[i].server_name = ss;
+			file_list[i].ServerName = ss;
 			i++;
 		}
 		i = 0;
 		while(getline(public_name,ss))
 		{
-			file_list[i].public_name = ss;
+			file_list[i].PublicName = ss;
 			i++;
 		}
 		for(int i = 0; i<count; i++)
 		{
 			for(int j = 0; j<count; j++)
 			{
-				if(file_list[j].server_name==s[i])
+				if(file_list[j].ServerName==s[i])
 				{
-					prom = file_list[i].server_name;
-					file_list[i].server_name = file_list[j].server_name;
-					file_list[j].server_name = prom;
-					prom = file_list[i].public_name;
-					file_list[i].public_name = file_list[j].public_name;
-					file_list[j].public_name = prom;
+					prom = file_list[i].ServerName;
+					file_list[i].ServerName = file_list[j].ServerName;
+					file_list[j].ServerName = prom;
+					prom = file_list[i].PublicName;
+					file_list[i].PublicName = file_list[j].PublicName;
+					file_list[j].PublicName = prom;
 				}
 			}
 		}
@@ -122,19 +126,19 @@ vector <file_struct> sort(string sn, string pn, string sort, string size, string
 			if(i>0)
 			{
 				size_double = stod(ss);
-				file_list[i-1].byte_size = stoi(ss);
+				file_list[i-1].BytedSize = stoi(ss);
 				used_size_d += size_double;
-				file_list[0].byte_used_size += stoi(ss);
+				file_list[0].BytedUsedSize += stoi(ss);
 				if(size_double<1024)
 				{	
-					file_list[i-1].size = round_d(to_string(size_double)) + " B";
+					file_list[i-1].Size = round_d(to_string(size_double)) + " B";
 				}
 				else
 				{
 					size_double = round(size_double/1024*10)/10;
 					if(size_double<1024)
 					{
-						file_list[i-1].size = round_d(to_string(size_double)) + " KB";
+						file_list[i-1].Size = round_d(to_string(size_double)) + " KB";
 					}
 					else
 					{
@@ -142,12 +146,12 @@ vector <file_struct> sort(string sn, string pn, string sort, string size, string
 						if(size_double<1024)
 						{
 							
-							file_list[i-1].size = round_d(to_string(size_double)) + " MB";
+							file_list[i-1].Size = round_d(to_string(size_double)) + " MB";
 						}
 						else
 						{
 							size_double = round(size_double/1024*10)/10;
-							file_list[i-1].size = round_d(to_string(size_double)) + " GB";
+							file_list[i-1].Size = round_d(to_string(size_double)) + " GB";
 						}
 					}
 				}
@@ -158,21 +162,21 @@ vector <file_struct> sort(string sn, string pn, string sort, string size, string
 		while(getline(dates,ss))
 		{
 			if(i>0)
-				file_list[i-1].date = ss;
+				file_list[i-1].Date = ss;
 			i++;
 		}
 		if(used_size_d>=0.1)
 		{
 			if(used_size_d<1024)
 			{
-				file_list[0].used_size = round_d(to_string(used_size_d)) + " B";
+				file_list[0].UsedSize = round_d(to_string(used_size_d)) + " B";
 			}
 			else
 			{
 				used_size_d = round(used_size_d/1024*10)/10;
 				if(used_size_d<1024)
 				{
-					file_list[0].used_size = round_d(to_string(used_size_d)) + " KB";
+					file_list[0].UsedSize = round_d(to_string(used_size_d)) + " KB";
 				}
 				else
 				{
@@ -180,29 +184,29 @@ vector <file_struct> sort(string sn, string pn, string sort, string size, string
 					if(used_size_d<1024)
 					{
 						
-						file_list[0].used_size = round_d(to_string(used_size_d)) + " MB";
+						file_list[0].UsedSize = round_d(to_string(used_size_d)) + " MB";
 					}
 					else
 					{
 						used_size_d = round(used_size_d/1024*10)/10;
-						file_list[0].used_size = round_d(to_string(used_size_d)) + " GB";
+						file_list[0].UsedSize = round_d(to_string(used_size_d)) + " GB";
 					}						
 				}
 			}
 		}
 		else
 		{
-			file_list[0].used_size = "0 B";
+			file_list[0].UsedSize = "0 B";
 		}
 		for(int i = 0; i<count; i++)
-			for(size_t j = 0; j<file_list[i].date.length(); j++)
-				if(file_list[i].date[j] == '_')
-					file_list[i].date[j] = ' ';
+			for(size_t j = 0; j<file_list[i].Date.length(); j++)
+				if(file_list[i].Date[j] == '_')
+					file_list[i].Date[j] = ' ';
 	}
 	return file_list;
 }
 
-vector<file_struct> file_delete(string num, vector<file_struct> file_list)
+vector<file_struct> FileDelete(string num, vector<file_struct> file_list)
 {
 	if(num == "all")
 	{
@@ -215,59 +219,64 @@ vector<file_struct> file_delete(string num, vector<file_struct> file_list)
 		server_name.close();
 		for(size_t i = 0; i<file_list.size(); i++)
 		{
-			file_list[i].server_name = "";
-			file_list[i].public_name = "";
-			file_list[i].size = "";
-			file_list[i].date = "";
-			file_list[i].file_path = "";
-			file_list[i].used_size = "";
-			file_list[i].byte_size = 0;
+			file_list[i].ServerName = "";
+			file_list[i].PublicName = "";
+			file_list[i].Size = "";
+			file_list[i].Date = "";
+			file_list[i].Path = "";
+			file_list[i].UsedSize = "";
+			file_list[i].BytedSize = 0;
 		}
 	}
 	else
 	{
+        cout<<"Hello1"<<endl;
 		int numm = stoi(num);
 		num = "";
 		char command_buf[200];
 		for(int i = 0; i<200; i++)
 			command_buf[i] = 0;
 		strcat(command_buf, "rm ../Interface/yourcloud/");
-		strcat(command_buf, file_list[numm].server_name.c_str());
+		strcat(command_buf, file_list[numm].ServerName.c_str());
 		system(command_buf);
 		ifstream sn("../Interface/sources/content/server_name.txt");
 		ofstream sn_n("../Interface/sources/content/server_name_new.txt");
 		ifstream pn("../Interface/sources/content/public_name.txt");
 		ofstream pn_n("../Interface/sources/content/public_name_new.txt");
+        cout<<"Hello2"<<endl;
 		while(getline(sn,num))
 		{
-			if(num==file_list[numm].server_name);
+			if(num==file_list[numm].ServerName);
 			else
 				sn_n<<num<<endl;
 		}
 		while(getline(pn,num))
 		{
-			if(num==file_list[numm].public_name);
+			if(num==file_list[numm].PublicName);
 			else
 				pn_n<<num<<endl;
 		}
+        cout<<"Hello3"<<endl;
 		system("rm ../Interface/sources/content/server_name.txt");
 		system("mv ../Interface/sources/content/server_name_new.txt ../Interface/sources/content/server_name.txt");
 		system("rm ../Interface/sources/content/public_name.txt");
 		system("mv ../Interface/sources/content/public_name_new.txt ../Interface/sources/content/public_name.txt");
-		file_list[0].byte_used_size -= file_list[numm].byte_size;
+		file_list[0].BytedUsedSize -= file_list[numm].BytedSize;
 		for(size_t i = numm+1; i<file_list.size(); i++)
 		{
-			file_list[i-1].server_name = file_list[i].server_name;
-			file_list[i-1].public_name = file_list[i].public_name;
-			file_list[i-1].size = file_list[i].size;
-			file_list[i-1].date = file_list[i].date;
-			file_list[i-1].file_path = file_list[i].file_path;
-			file_list[i-1].byte_size = file_list[i].byte_size;
+			file_list[i-1].ServerName = file_list[i].ServerName;
+			file_list[i-1].PublicName = file_list[i].PublicName;
+			file_list[i-1].Size = file_list[i].Size;
+			file_list[i-1].Date = file_list[i].Date;
+			file_list[i-1].Path = file_list[i].Path;
+			file_list[i-1].BytedSize = file_list[i].BytedSize;
 		}
+        cout<<"Hello4"<<endl;
 	}
 	system("ls ../Interface/yourcloud  -l --time-style=\"+%Y-%m-%d_%H:%M:%S\" | awk '{print $6}' > ../Interface/sources/content/dates.txt");
 	system("ls -l ../Interface/yourcloud | awk '{print $5}' > ../Interface/sources/content/sizes.txt");
 	system("df ../Interface/yourcloud/ | awk '{print $4}' > ../Interface/sources/content/free_size.txt");
 	system("ls -1 ../Interface/yourcloud > ../Interface/sources/content/sorted.txt");
+    cout<<"Hello5"<<endl;
 	return file_list;
 }
