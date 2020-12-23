@@ -15,7 +15,7 @@ using namespace std;
 
 int main()
 {
-  char const SrvAddress[] = "192.168.1.2";
+  char const SrvAddress[] = "127.0.0.1";
   std::uint16_t SrvPort = 5555;
   std::uint16_t SrvThreadCount = 20;
   std::string const RootDir = "../Interface";
@@ -73,6 +73,7 @@ int main()
         auto ContentSize = req->GetContentSize();
         std::vector <char> Buf(ContentSize);
         req->GetContent(&Buf[0], ContentSize, true);
+        i = 0;
         for(size_t i = 0; i<ContentSize; i++)
         {
             if (Buf[i] == '\n')
@@ -106,7 +107,19 @@ int main()
                 }
             }
             else
+            {
+                if (auth_check.find("delete=") == 0)
+                {
+                    i = 7;
+                    while (i < ContentSize)
+                    {
+                        delete_num += Buf[i];
+                        i++;
+                    }
+                    delete_bool = true;
+                }
                 auth = false;
+            }                    
             i = 0;
         }
         string Cookie;
@@ -118,18 +131,14 @@ int main()
             req->SetResponseAttr(Http::Response::Header::SetCookie::Value, login_cookie);
             req->SetResponseAttr(Http::Response::Header::SetCookie::Value, password_cookie);
         }
+        Cookie = "Cookies: " + req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
+        string Cookies = req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
+        auto CookiesList = GetCookies(Cookies);
+        for(size_t i = 0; i<CookiesList.size()-1; i++)
+            if (CookiesList[i] == CookieLogin && CookiesList[i+1] == CookiePassword)
+                Authorized = true;
         if (Http::Content::TypeFromFileName(Path) == Http::Content::Type::html::Value)
-        {
-            Cookie = "Cookies: " + req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
             cout<<Cookie<<endl<<endl;
-            string Cookies = req->GetHeaderAttr(Http::Request::Header::Cookie::Value);
-            auto CookiesList = GetCookies(Cookies);
-            for(size_t i = 0; i<CookiesList.size()-1; i++)
-            {
-                if (CookiesList[i] == CookieLogin && CookiesList[i+1] == CookiePassword)
-                    Authorized = true;
-            }
-        }
 		string ru_let;
 		string ru_var;
 		string public_name = "../Interface/sources/content/public_name.txt";
@@ -183,7 +192,7 @@ int main()
 			}
 			i++;
 		}
-        if(ContentSize > 0 && auth == false)
+        if(ContentSize > 0 && auth == false && delete_bool == false)
         {
 			if(ContentSize > f_size_byte);
 			else
@@ -191,7 +200,6 @@ int main()
 				file.file_path = "";
 				file.server_name = "";
 				file.public_name = "";				
-				req->GetContent(&Buf[0], ContentSize, true);
 				i = 0;
 				while(Buf[i]!='\n')
 					i++;
@@ -367,10 +375,12 @@ int main()
 						}
 				}
 				file.server_name = ru_var;
+                cout<<file.server_name<<endl<<file.public_name<<endl;
 				for(size_t i = 0; i<ru_var.length(); i++)
 					if (ru_var[i] == ' ')
 						file.server_name[i] = '_';
 				file.file_path = "../Interface/yourcloud/" + file.server_name;
+                cout<<file.server_name<<endl<<file.public_name<<endl;
 				size_t content_start = 0;
 				for(size_t i = 0; i<ContentSize; i++)
 				{
@@ -478,7 +488,7 @@ int main()
 			<html>"<<endl<<"\
 				<head>"<<endl<<"\
 					<link rel=\"shortcut icon\" href=\"/sources/images/favicon.ico\" type=\"image/x-icon\">"<<endl<<"\
-					<meta http-equiv=\"refresh\" content=\"0;URL=index.html\" />"<<endl<<"\
+					<meta http-equiv=\"refresh\" content=\"0;URL=index.html\">"<<endl<<"\
 				</head>"<<endl<<"\
 				<body>"<<endl<<"\
 				</body>"<<endl<<"\
@@ -488,7 +498,7 @@ int main()
 			<html>"<<endl<<"\
 				<head>"<<endl<<"\
 					<link rel=\"shortcut icon\" href=\"/sources/images/favicon.ico\" type=\"image/x-icon\">"<<endl<<"\
-					<meta http-equiv=\"refresh\" content=\"0;URL=delay.html\" />"<<endl<<"\
+					<meta http-equiv=\"refresh\" content=\"0;URL=delay.html\">"<<endl<<"\
 				</head>"<<endl<<"\
 				<body>"<<endl<<"\
 				</body>"<<endl<<"\
@@ -517,11 +527,14 @@ int main()
                             <div class=\"files\" style=\"width: 99%; top: 0; left: 0\">"<<endl<<"\
                                 <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" height=\"100%\" border=\"3\" bgcolor=\"white\">"<<endl<<"\
                                     <tr>"<<endl<<"\
-                                        <td width=\"7.7%\" height=\"15%\" align=\"center\">"<<endl<<"\
-                                            <div class=\"table-header-1\">"<<endl<<"\
-                                                <a href=\"delay.html?delete=all\">Delete all</a>"<<endl<<"\
-                                            </div>"<<endl<<"\
-                                        </td>"<<endl<<"\
+                                        <form action=\"delay.html\" method=\"post\">"<<endl<<"\
+                                            <td width=\"7.7%\" height=\"15%\" align=\"center\">"<<endl<<"\
+                                                <div class=\"table-header-1\" style=\"width: 100%; height: 100%; font-size: 30px\">"<<endl<<"\
+                                                    <input type=\"submit\" value=\"Delete all\" style=\"width: 100%; height: 100%; font-size: 30px\">"<<endl<<"\
+                                                    <input type=\"text\" name=\"delete\" value=\"all\" style=\"display: none\">"<<endl<<"\
+                                                </div>"<<endl<<"\
+                                            </td>"<<endl<<"\
+                                        </form>"<<endl<<"\
                                         <td width=\"38.5%\" height=\"15%\" align=\"center\">"<<endl<<"\
                                             <div class=\"table-header-1\">"<<endl<<"\
                                                 Name"<<endl<<"\
@@ -544,11 +557,14 @@ int main()
 				{	
 					index<<"\
                                     <tr>"<<endl<<"\
-                                        <td width=\"7.7%\" height=\"10%\" align=\"center\">"<<endl<<"\
-                                            <div class=\"file-struct\">"<<endl<<"\
-                                                <a href=\"delay.html?delete="<<i<<"\">Delete file</a>"<<endl<<"\
-                                            </div>"<<endl<<"\
-                                        <td width=\"38.5%\" height=\"10%\" align=\"center\">"<<endl<<"\
+                                        <form action=\"delay.html\" method=\"post\">"<<endl<<"\
+                                            <td width=\"7.7%\" height=\"10%\" align=\"center\">"<<endl<<"\
+                                                <div class=\"file-struct\" style=\"width: 100%; height: 100%; font-size: 30px\">"<<endl<<"\
+                                                    <input type=\"submit\" value=\"Delete file\" style=\"width: 100%; height: 100%; font-size: 30px\">"<<endl<<"\
+                                                    <input type=\"text\" name=\"delete\" value=\""<<i<<"\" style=\"display: none\">"<<endl<<"\
+                                                </div>"<<endl<<"\
+                                            <td width=\"38.5%\" height=\"10%\" align=\"center\">"<<endl<<"\
+                                        </form>"<<endl<<"\
                                             <div class=\"file-struct\">"<<endl<<"\
                                                 <a href=\"yourcloud/"<<file_list[i].server_name<<"\" download>"<<file_list[i].public_name<<"<a/>"<<endl<<"\
                                             </div>"<<endl<<"\
@@ -612,7 +628,7 @@ int main()
 						<title>"<<endl<<"\
 							Your Cloud"<<endl<<"\
 						</title>"<<endl<<"\
-						<meta http-equiv=\"refresh\" content=\"0;URL=index.html\" />"<<endl<<"\
+						<meta http-equiv=\"refresh\" content=\"0;URL=index.html\">"<<endl<<"\
 					</head>"<<endl<<"\
 					<body>"<<endl<<"\
 					</body>"<<endl<<"\
@@ -638,9 +654,10 @@ int main()
 				send_file<<"\
 					<html>"<<endl<<"\
 						<head>"<<endl<<"\
-							<meta http-equiv=\"refresh\" content=\"0;URL=index.html\" />"<<endl<<"\
+							<meta http-equiv=\"refresh\" content=\"0;URL=index.html\">"<<endl<<"\
 						</head>"<<endl<<"\
 						<body>"<<endl<<"\
+                            Wait..."<<endl<<"\
 						</body>"<<endl<<"\
 					</html>"<<endl;
 			}
