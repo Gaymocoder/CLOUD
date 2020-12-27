@@ -10,6 +10,7 @@
 #include <vector>
 #include "file_const.h"
 #include <cstring>
+#include <ctime>
 
 using namespace std;
 
@@ -89,7 +90,13 @@ int main()
     const std::string CookieLogin = "login="+Login;
     const std::string CookiePassword = "password="+Password;
     file_struct File;
-    
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer[100];
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    strftime (buffer, 100 ,"Server started on %d.%m.%Y at %H:%M:%S",timeinfo);
+    std::cout<<buffer<<std::endl;
     // Server initializing, cycle starting
     try
     {
@@ -104,7 +111,11 @@ int main()
             {
                 {
                     std::stringstream Io;
-                    Io << "Path: " << Path << std::endl
+                    time (&rawtime);
+                    timeinfo = localtime (&rawtime);
+                    strftime (buffer, 100 ,"Request got on %d.%m.%Y at %H:%M:%S",timeinfo);
+                    Io << buffer << std::endl
+                        << "Path: " << Path << std::endl
                         << Http::Request::Header::Host::Name << ": "
                             << req->GetHeaderAttr(Http::Request::Header::Host::Value) << std::endl
                         << Http::Request::Header::Referer::Name << ": "
