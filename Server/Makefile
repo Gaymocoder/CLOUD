@@ -1,4 +1,4 @@
-PROJECT = Server
+PROJECT = Server.sh
 
 CPP = $(wildcard *.cpp)
 
