@@ -45,23 +45,40 @@ class file_struct
 		int BytedUsedSize;
 };		
 
-string round_d(string a)
+string round_d(string a, int n)
 {
-	for(int i = a.length()-1; i>=0; i--)
+	string b = "";
+	size_t num = 0;
+	if (n == -1)
 	{
-		if(a[i]=='0')
-			a[i] = 0;
-		else
-			break;
+		for(int i = a.length()-1; i>=0; i--)
+		{
+			if(a[i]=='0');
+			else
+			{
+				if (a[i] == '.')
+					num = i-1;
+				else
+					num = i;
+				break;
+			}
+		}
+		for(size_t i = 0; i<=num; i++)
+			b += a[i];
 	}
-	for(size_t i = 0; i<a.length()-1; i++)
-		if(a[i] == '.')
-        {
-            if (a[i+1] == 0)
-                a[i+1] = '0';
-            break;
-        }
-	return a;
+	else if (n > 0)
+	{
+		for(int i = 0; a[i] != '.'; i++)
+			b += a[i];
+		for(size_t i = b.length()+1; i<b.length()+1+n; i++)
+			b += a[i];
+	}
+	else if (n == 0)
+		for(int i = 0; a[i] != '.'; i++)
+			b += a[i];
+	else
+		printf("Not acceptable amount of chars after point %i", n);
+	return b;
 } 
 
 vector <file_struct> Sort(string sn, string pn, string sort, string size, string date)
@@ -131,14 +148,14 @@ vector <file_struct> Sort(string sn, string pn, string sort, string size, string
 				file_list[0].BytedUsedSize += stoi(ss);
 				if(size_double<1024)
 				{	
-					file_list[i-1].Size = round_d(to_string(size_double)) + " B";
+					file_list[i-1].Size = round_d(to_string(size_double), -1) + " B";
 				}
 				else
 				{
 					size_double = round(size_double/1024*10)/10;
 					if(size_double<1024)
 					{
-						file_list[i-1].Size = round_d(to_string(size_double)) + " KB";
+						file_list[i-1].Size = round_d(to_string(size_double), -1) + " KB";
 					}
 					else
 					{
@@ -146,12 +163,12 @@ vector <file_struct> Sort(string sn, string pn, string sort, string size, string
 						if(size_double<1024)
 						{
 							
-							file_list[i-1].Size = round_d(to_string(size_double)) + " MB";
+							file_list[i-1].Size = round_d(to_string(size_double), -1) + " MB";
 						}
 						else
 						{
 							size_double = round(size_double/1024*10)/10;
-							file_list[i-1].Size = round_d(to_string(size_double)) + " GB";
+							file_list[i-1].Size = round_d(to_string(size_double), -1) + " GB";
 						}
 					}
 				}
@@ -169,14 +186,14 @@ vector <file_struct> Sort(string sn, string pn, string sort, string size, string
 		{
 			if(used_size_d<1024)
 			{
-				file_list[0].UsedSize = round_d(to_string(used_size_d)) + " B";
+				file_list[0].UsedSize = round_d(to_string(used_size_d), -1) + " B";
 			}
 			else
 			{
 				used_size_d = round(used_size_d/1024*10)/10;
 				if(used_size_d<1024)
 				{
-					file_list[0].UsedSize = round_d(to_string(used_size_d)) + " KB";
+					file_list[0].UsedSize = round_d(to_string(used_size_d), -1) + " KB";
 				}
 				else
 				{
@@ -184,12 +201,12 @@ vector <file_struct> Sort(string sn, string pn, string sort, string size, string
 					if(used_size_d<1024)
 					{
 						
-						file_list[0].UsedSize = round_d(to_string(used_size_d)) + " MB";
+						file_list[0].UsedSize = round_d(to_string(used_size_d), -1) + " MB";
 					}
 					else
 					{
 						used_size_d = round(used_size_d/1024*10)/10;
-						file_list[0].UsedSize = round_d(to_string(used_size_d)) + " GB";
+						file_list[0].UsedSize = round_d(to_string(used_size_d), -1) + " GB";
 					}						
 				}
 			}
