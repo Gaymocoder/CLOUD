@@ -118,14 +118,6 @@ int main()
 			auto ContentSize = req->GetContentSize();
 			std::vector <char> Buf(ContentSize);
 			req->GetContent(&Buf[0], ContentSize, true);
-			if (ContentSize > 0)
-			{
-				for(size_t i = 0; i < ContentSize; i++)
-				{
-					std::cout << Buf[i];
-				}
-			}
-			
 			// Cout of execution
 			Storage CLOUD;
 			CLOUD.Path = FSRelPath(RootDir) / "yourcloud";
@@ -198,14 +190,12 @@ int main()
 						LogIn += Buf[CountBuf];
 						CountBuf++;
 					}
-					std::cout << "Login: " << LogIn << std::endl;
 					CountBuf += 10; // in "Password=" 10
 					while (CountBuf < ContentSize)
 					{
 						PassIn += Buf[CountBuf];
 						CountBuf++;
 					}
-					std::cout << "Password: " << LogIn << std::endl;
 				}
 				else
 				{
@@ -302,10 +292,7 @@ int main()
 			
 			// Deleting elements
 			if (DeleteRequest)
-			{
 				CLOUD.Delete(FSRelPath(DeletePath), DeleteExtra);
-				std::cout << "Deleted" << std::endl;
-			}
 				
 			extern std::string AuthIndex,
 							   NonAuthIndex,
@@ -367,7 +354,6 @@ int main()
 					{
 						if (File.Directory == FsPath)
 						{
-							std::cout << File.Directory << std::endl;
 							FileCounter++;
 							HtmlOut += "\
 											<tr>\n\
