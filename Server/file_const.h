@@ -422,7 +422,12 @@ class Storage
 				{
 				    if ((int) RequestBuf[CountBuf] < 0)
 				    {
-				        HtmlBuf << "&#" << (int)RequestBuf[CountBuf] + 1104 << ";";
+						if ((int) RequestBuf[CountBuf] == -88)
+							HtmlBuf << "&#" << 1025 << ";";
+						else if ((int) RequestBuf[CountBuf] == -72)
+							HtmlBuf << "&#" << 1105 << ";";
+						else
+							HtmlBuf << "&#" << (int)RequestBuf[CountBuf] + 1104 << ";";
 					}
 				    else
 				    {
@@ -463,8 +468,6 @@ class Storage
 		}
 		void Delete(FS::path ElementPath, std::string extra)
 		{
-			std::cout << ElementPath << std::endl;
-			std::cout << extra << std::endl;
 			if (extra == "Everything in folder")
 			{
 				FS::remove_all(ElementPath);
