@@ -6,7 +6,7 @@ LIBS = pthread event
 
 CXX = g++
 
-FLAGS = -Wall -std=c++11  -O3 -g0
+FLAGS = -Wall -std=c++17  -O3 -g0
 
 OBJ = $(CPP:.cpp=.o)
 
