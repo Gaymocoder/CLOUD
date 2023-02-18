@@ -1,0 +1,158 @@
+.unvisible
+{
+	opacity: 0;
+	font-size: 60px;
+}
+
+.files
+{
+	position: relative;
+    width: 77%;
+    height: 77%;
+	top: 10%;
+	left: 10%;
+	background: #ffffff;
+	border: 2px solid #2C2C2C;
+    overflow: auto;
+}
+
+.table-header-1
+{
+	font-family: Times New Roman;
+	font-size: 40pt;
+	font-weight: bold;
+}
+
+.autherror-logo
+{
+    position: relative;
+}
+
+.page-header
+{
+    position: relative;
+	border: 2px solid #2C2C2C;
+	font-family: Arial;
+	font-size: 40pt;
+	text-align: center;
+	background: #ffffff;
+    width: 50%;
+}
+
+.exit
+{
+	position: absolute;
+	font-family: Arial;
+	font-size: 14pt;
+	right: 0px;
+	top: 0px;
+}
+
+.left-if
+{
+	position: relative;
+    width: 20%;
+    left: 7%;
+    height: 38%;
+	font-family: Arial;
+	font-size: 20pt;
+}
+
+.if
+{
+    position: relative;
+    top:100px;    
+}
+
+.right-if
+{
+	position: relative;
+    right: 7%;
+    width: 20%;
+    height: 38%;
+	font-family: Arial;
+	font-size: 20pt;
+}
+
+.center-if
+{
+	font-family: Arial;
+	font-size: 20pt;
+    position: relative;
+	top: 3%;
+}
+
+.log-in-error
+{
+	position: relative;
+    top: 6%
+}
+
+.form-file-sender
+{
+	position: relative;
+    top: 7px;
+}
+
+.send-file
+{
+	border: 3px solid #2C2C2C;
+	position: relative;
+	background: #ffffff;
+    width: 70%;
+    height: 80px;
+    left: 15%;
+}
+
+.file-struct
+{
+	font-family: Arial;
+	font-size: 25pt;
+}
+
+.no-content
+{
+	font-family: High Tower Text;
+	font-size: 50pt;
+}
+
+.size-error
+{
+	font-family: High Tower Text;
+	font-size: 50pt;
+	position: absolute;
+	bottom: 100px;
+	top: 100px;
+	left: 200px;
+	right: 200px;
+	background: #ffffff;
+}
+
+.free-size
+{
+	border: 3px solid #2C2C2C;
+	font-family: Times New Roman;
+	font-size: 20pt;
+	position: absolute;
+    	width: 13.6%;
+    	left: 85.2%;
+	background: #ffffff;
+}
+
+.used-size
+{
+	border: 3px solid #2C2C2C;
+	font-family: Times New Roman;
+	font-size: 20pt;
+    	position: absolute;
+	width: 15%;
+	left: 0%;
+	background: #ffffff;
+}
+
+.size-size
+{
+    position: relative;
+    top: 0%;
+    height: 10%;
+}
