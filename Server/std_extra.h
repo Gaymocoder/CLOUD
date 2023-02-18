@@ -5,6 +5,7 @@
 #include <ctime>
 #include <vector>
 #include <cmath>
+
 using namespace std;
 namespace FS = std::filesystem;
 
@@ -16,97 +17,9 @@ enum class DSType
 
 namespace STD_FGC
 {
-	std::string getSizeStr(size_t Bytes)
-	{
-		double XBytes = (double)Bytes;
-		std::string RoundedSize;
-		if (XBytes < 1024)
-			RoundedSize = round_d(to_string(XBytes), -1) + " B";
-		else
-		{
-			XBytes = round(XBytes/1024*10)/10;
-			if (XBytes < 1024)
-				RoundedSize = round_d(to_string(XBytes), -1) + " KB";
-			else
-			{
-				XBytes = round(XBytes/1024*10)/10;
-				if (XBytes < 1024)
-					RoundedSize = round_d(to_string(XBytes), -1) + " MB";
-				else
-				{
-					XBytes = round(XBytes/1024*10)/10;
-					if (XBytes < 1024)
-						RoundedSize = round_d(to_string(XBytes), -1) + " GB";
-					else
-					{
-						XBytes = round(XBytes/1024*10)/10;
-						if (XBytes < 1024)
-							RoundedSize = round_d(to_string(XBytes), -1) + " TB";
-						else
-						{
-							XBytes = round(XBytes/1024*10)/10;
-							if (XBytes < 1024)
-								RoundedSize = round_d(to_string(XBytes), -1) + " PB";
-							else
-							{
-								XBytes = round(XBytes/1024*10)/10;
-								if (XBytes < 1024)
-									RoundedSize = round_d(to_string(XBytes), -1) + " EB";
-								else
-								{
-									XBytes = round(XBytes/1024*10)/10;
-									if (XBytes < 1024)
-										RoundedSize = round_d(to_string(XBytes), -1) + " ZB";
-									else
-									{
-										XBytes = round(XBytes/1024*10)/10;
-										RoundedSize = round_d(to_string(XBytes), -1) + " YB";
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return RoundedSize;
-	}
-
-	std::string round_d(std::string a, int n)
-	{
-		std::string b = "";
-		size_t num = 0;
-		if (n == -1)
-		{
-			for(int i = a.length()-1; i>=0; i--)
-			{
-				if(a[i]=='0');
-				else
-				{
-					if (a[i] == '.')
-						num = i-1;
-					else
-						num = i;
-					break;
-				}
-			}
-			for(size_t i = 0; i<=num; i++)
-				b += a[i];
-		}
-		else if (n > 0)
-		{
-			for(int i = 0; a[i] != '.'; i++)
-				b += a[i];
-			for(size_t i = b.length()+1; i<b.length()+1+n; i++)
-				b += a[i];
-		}
-		else if (n == 0)
-			for(int i = 0; a[i] != '.'; i++)
-				b += a[i];
-		else
-			printf("Not acceptable amount of chars after point %i", n);
-		return b;
-	} 
+	void changeStrChar(std::string *str, size_t pos, char c);
+	std::string getSizeStr(size_t Bytes);
+	std::string RoundTo(std::string number, int n);
 
 	template <typename TP>
 	std::time_t to_time_t(TP tp)
