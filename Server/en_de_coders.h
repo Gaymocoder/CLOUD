@@ -1,16 +1,18 @@
-#include "dictionaries.h"
+#pragma once
+
 #include "std_extra.h"
 #include <iostream>
 #include <string>
 #include <sstream>
-
+#include <cstring>
+/*
 namespace EnDecoders
 {
 	std::string UrlToChar(std::string url);
 	std::string Url2ToChar(std::string url);
 	std::string CharToHtml(std::string str);
 }
-	
+	*/
 std::string RusToUTF_decode(std::string Str)
 {
 	std::string Out = "";
@@ -24,29 +26,29 @@ std::string RusToUTF_decode(std::string Str)
 				Str.copy(Buf, 3, i);
 				if (strcmp(Buf, "%20") == 0)
 				{
-					Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+					Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 					i += 2;
 				}
 				else if (strcmp(Buf, "%2F") == 0)
 				{
-					Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+					Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 					i += 2;
 				}
 				else if (strcmp(Buf, "%28") == 0)
 				{
-					Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+					Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 					i += 2;
 				}
 				else if (strcmp(Buf, "%29") == 0)
 				{
-					Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+					Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 					i += 2;
 				}
 				else if (Str[i+3] == '%')
 				{
 					Str.copy(Buf, 6, i);
 					i += 5;
-					Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+					Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 				}
 				else
 				{
@@ -63,22 +65,22 @@ std::string RusToUTF_decode(std::string Str)
 			Str.copy(Buf, 3, i);
 			if (strcmp(Buf, "%20") == 0)
 			{
-				Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+				Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 				i += 2;
 			}
 			else if (strcmp(Buf, "%2F") == 0)
 			{
-				Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+				Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 				i += 2;
 			}
 			else if (strcmp(Buf, "%28") == 0)
 			{
-				Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+				Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 				i += 2;
 			}
 			else if (strcmp(Buf, "%29") == 0)
 			{
-				Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL)];
+				Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL)];
 				i += 2;
 			}
 			else
@@ -107,7 +109,7 @@ std::string RusToUTF2_decode(std::string Str)
 			Str.copy(Buf, 3, i);
 			if (Str[i] == '%')
 			{
-				Out += RusUTFToChar[KeyByValue(std::string(Buf), RusUTFToURL2)];
+				Out += RusUTFToChar[STD_FGC::KeyByValue(std::string(Buf), RusUTFToURL2)];
 				i += 2;
 			}
 			else
@@ -124,7 +126,7 @@ std::string RusToUTF2_decode(std::string Str)
 	}
 	return Out;
 }
-}
+
 std::string RusToHtml_encode(std::string src)
 {
 	std::string Encoded;
@@ -136,7 +138,7 @@ std::string RusToHtml_encode(std::string src)
 			Char << src[i] << src[i+1];
 			try
 			{
-				std::string HtmlCode = KeyByValue(Char.str(), RusUTFToChar);
+				std::string HtmlCode = STD_FGC::KeyByValue(Char.str(), RusUTFToChar);
 				Encoded += HtmlCode;
 				i++;
 			}

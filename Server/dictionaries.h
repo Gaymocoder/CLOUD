@@ -1,6 +1,7 @@
-#ifndef UPDATE_H
-#define UPDATE_H
+#pragma once
+
 #include <map>
+#include <string>
 typedef std::map <std::string, std::string> StrDict;
 
 StrDict RusUTFToURL =
@@ -82,5 +83,3 @@ StrDict RusUTFToChar =
 	{"&#40;", "("},
 	{"&#41;", ")"}
 };
-
-#endif

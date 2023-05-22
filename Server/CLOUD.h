@@ -1,3 +1,5 @@
+#pragma once
+
 #include <fstream>
 #include <vector>
 #include <filesystem>
@@ -5,6 +7,9 @@
 
 using namespace std;
 namespace FS = std::filesystem;
+
+typedef std::string serverSetting;
+typedef std::string storageSetting;
 
 std::vector <std::string> GetCookies(std::string CookiesList);
 
@@ -23,7 +28,7 @@ class DataStruct
 		FS::path getPath();
 		std::string LastChanged();
 		size_t getDiskSize();
-}
+};
 
 class NewFile
 {
@@ -44,11 +49,14 @@ class NewFile
 class Storage
 {
 	private:
-		FS::path Path;
-		
+		FS::path RootDir, configFile;
+		void configFileParse();
+				
 	public:
-		std::vector <DataStruct> Files;
-		std::vector <DataStruct> Dirs;
+		Storage(std::string configFile);
+		std::string DefaultPage, Login, Password, SrvAddress;
+		std::uint16_t SrvPort, SrvThreadCount;
+		std::vector <DataStruct> Files, Dirs;
 		size_t FreeSpace();
 		size_t UsedSpace();
 		void Upload(std::vector <char> *RequestBuf, FS::path Directory, size_t ContentSize);

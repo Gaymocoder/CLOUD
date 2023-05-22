@@ -10,57 +10,11 @@ void STD_FGC::changeStrChar(std::string *str, size_t pos, char c)
 std::string STD_FGC::getSizeStr(size_t Bytes)
 {
 	double XBytes = (double) Bytes;
-	std::string RoundedSize;
-	if (XBytes < 1024)
-		RoundedSize = round_d(to_string(XBytes), -1) + " B";
-	else
-	{
-		XBytes = round(XBytes/1024*10)/10;
-		if (XBytes < 1024)
-			RoundedSize = round_d(to_string(XBytes), -1) + " KB";
-		else
-		{
-			XBytes = round(XBytes/1024*10)/10;
-			if (XBytes < 1024)
-				RoundedSize = round_d(to_string(XBytes), -1) + " MB";
-			else
-			{
-				XBytes = round(XBytes/1024*10)/10;
-				if (XBytes < 1024)
-					RoundedSize = round_d(to_string(XBytes), -1) + " GB";
-				else
-				{
-					XBytes = round(XBytes/1024*10)/10;
-					if (XBytes < 1024)
-						RoundedSize = round_d(to_string(XBytes), -1) + " TB";
-					else
-					{
-						XBytes = round(XBytes/1024*10)/10;
-						if (XBytes < 1024)
-							RoundedSize = round_d(to_string(XBytes), -1) + " PB";
-						else
-						{
-							XBytes = round(XBytes/1024*10)/10;
-							if (XBytes < 1024)
-								RoundedSize = round_d(to_string(XBytes), -1) + " EB";
-							else
-							{
-								XBytes = round(XBytes/1024*10)/10;
-								if (XBytes < 1024)
-									RoundedSize = round_d(to_string(XBytes), -1) + " ZB";
-								else
-								{
-									XBytes = round(XBytes/1024*10)/10;
-									RoundedSize = round_d(to_string(XBytes), -1) + " YB";
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return RoundedSize;
+	const char* SizeNames = "KMGTPEZY";
+	int i = 0;
+	for(; XBytes >= 1024; i++)
+		XBytes = XBytes/1024;
+	return RoundTo(std::to_string(XBytes), 1) + ((i > 0) ? (std::string(" ") + SizeNames[i-1]) : " ") + "B";
 }
 
 std::string STD_FGC::RoundTo(std::string number, int n)
@@ -92,14 +46,14 @@ std::string STD_FGC::RoundTo(std::string number, int n)
 	else
 	{
 		float_part = "";
-		for(int i = int_part.length()-2; i >= int_part.length() + n - 1; i--)
+		for(size_t i = int_part.length()-2; i >= int_part.length() + n - 1; i--)
 		{
 			if((int)(int_part[i+1] - '0') > 4)
 			{
 				if(int_part[i] == '9')
 				{
 					std::string zeros = "";
-					for(int j = i; j < int_part.length(); j++)
+					for(size_t j = i; j < int_part.length(); j++)
 						zeros += "0";
 					int_part = std::to_string(std::stoi(int_part.substr(0, i)) + 1) + zeros;
 				}
@@ -114,3 +68,20 @@ std::string STD_FGC::RoundTo(std::string number, int n)
 	}
 }
 
+std::string STD_FGC::KeyByValue(std::string Value, StrDict Dict)
+{
+	return std::find_if(Dict.begin(), Dict.end(), [&](auto it) {return (it.second == Value);})->first;
+}
+
+std::string STD_FGC::GetLine(const std::vector <char> &bytes, size_t pos)
+{
+	std::string _return = "";
+	while ((int) bytes[pos-1] != 10 && pos != 0)
+		pos--;
+	while ((int) bytes[pos] != 10 && (int) bytes[pos] != 13 && pos != bytes.size()-1)
+	{
+		_return += bytes[pos];
+		pos++;
+	}
+	return _return;
+}
