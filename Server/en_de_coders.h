@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ENDECODERS_H
+#define ENDECODERS_H
 
 #include "std_extra.h"
 #include <iostream>
@@ -153,3 +154,5 @@ std::string RusToHtml_encode(std::string src)
 	}
 	return Encoded;
 }
+
+#endif

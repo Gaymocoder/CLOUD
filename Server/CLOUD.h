@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CLOUD_H
+#define CLOUD_H
 
 #include <fstream>
 #include <vector>
@@ -65,3 +66,5 @@ class Storage
 		void Rename(FS::path OldPath, FS::path NewPath);
 		void Update();
 };
+
+#endif

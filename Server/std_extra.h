@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STD_FGC_H
+#define STD_FGC_H
 
 #include "dictionaries.h"
 #include <filesystem>
@@ -36,3 +37,5 @@ namespace STD_FGC
 	std::string KeyByValue(std::string Value, StrDict Dict);
 	std::string GetLine(const std::vector <char> &bytes, size_t pos);
 }
+
+#endif
